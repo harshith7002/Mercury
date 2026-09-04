@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import path from 'path';
 import fs from 'fs';
+import os from 'os';
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
@@ -10,14 +11,15 @@ function getDatabaseUrl(): string {
     return process.env.DATABASE_URL;
   }
 
-  // On Vercel / AWS Lambda serverless functions, the root directory (/var/task) is READ-ONLY.
-  // The ONLY writable location is /tmp.
-  const tmpDbPath = '/tmp/dev.db';
+  // Use OS temporary directory (resolves to /tmp on Vercel/Linux and AppData/Temp on Windows)
+  const systemTmpDir = os.tmpdir();
+  const tmpDbPath = path.join(systemTmpDir, 'mercury_dev.db');
+  
   const cwd = process.cwd();
   const bundledPrismaDb = path.join(cwd, 'prisma', 'dev.db');
   const bundledRootDb = path.join(cwd, 'dev.db');
 
-  // Copy bundled seed database to /tmp on lambda cold start if not present
+  // Copy bundled database to writable OS temp folder on serverless cold-start
   try {
     const shouldCopy = !fs.existsSync(tmpDbPath) || fs.statSync(tmpDbPath).size === 0;
     if (shouldCopy) {
@@ -28,10 +30,9 @@ function getDatabaseUrl(): string {
       }
     }
   } catch (err) {
-    console.error('Error copying SQLite database to writable /tmp directory:', err);
+    console.error('Error copying SQLite database to temp directory:', err);
   }
 
-  // If /tmp/dev.db exists and is writable, use it. Otherwise fall back.
   let selectedPath = tmpDbPath;
   if (!fs.existsSync(tmpDbPath)) {
     if (fs.existsSync(bundledPrismaDb)) selectedPath = bundledPrismaDb;

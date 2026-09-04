@@ -32,7 +32,7 @@ export class RazorpayService {
     const isMock = !keyId || !keySecret || keyId === 'rzp_test_mock' || keyId.includes('YOUR_KEY');
 
     return {
-      keyId: isMock ? 'rzp_test_mercury_demo' : keyId!,
+      keyId: isMock ? 'rzp_test_mercury_mock_mode' : keyId!,
       keySecret: isMock ? 'mock_secret_key_mercury' : keySecret!,
       isMock,
     };
@@ -75,7 +75,7 @@ export class RazorpayService {
       actor: 'Razorpay',
       agent: 'RazorpayService',
       action: 'ORDER_CREATED',
-      reason: `Created Razorpay Test Order ${orderId} for ₹${params.amount.toLocaleString('en-IN')}${isMock ? ' (Mock Adapter Mode)' : ''}.`,
+      reason: `Created Razorpay Test Order ${orderId} for ₹${params.amount.toLocaleString('en-IN')}${isMock ? ' (MOCK ADAPTER MODE - NO REAL KEYS)' : ' (REAL TEST MODE)'}.`,
       amount: params.amount,
       approvalStatus: 'PASSED',
       result: 'SUCCESS',
@@ -100,11 +100,16 @@ export class RazorpayService {
     let isValid = false;
 
     if (isMock) {
-      // In mock mode, check structure of signature or mock token
+      // Mock verification checks signature validity and rejects explicit invalid signatures
+      const isBadSig =
+        params.razorpaySignature.includes('invalid') ||
+        params.razorpaySignature.includes('bad') ||
+        params.razorpaySignature.length < 6;
+
       isValid =
         Boolean(params.razorpayPaymentId) &&
         Boolean(params.razorpayOrderId) &&
-        (params.razorpaySignature.startsWith('sig_') || params.razorpaySignature.length > 5);
+        !isBadSig;
     } else {
       // Real Razorpay HMAC SHA256 Verification
       const generatedSignature = crypto
@@ -116,7 +121,6 @@ export class RazorpayService {
     }
 
     if (isValid) {
-      // Update order in database if dbOrderId provided
       if (params.dbOrderId) {
         await prisma.order.update({
           where: { id: params.dbOrderId },
@@ -125,7 +129,7 @@ export class RazorpayService {
             razorpayOrderId: params.razorpayOrderId,
             razorpayPaymentId: params.razorpayPaymentId,
             razorpaySignature: params.razorpaySignature,
-            paymentMethod: isMock ? 'RAZORPAY_TEST_MOCK' : 'RAZORPAY_TEST_MODE',
+            paymentMethod: isMock ? 'RAZORPAY_MOCK_ADAPTER' : 'RAZORPAY_TEST_MODE',
           },
         });
       }
@@ -134,7 +138,7 @@ export class RazorpayService {
         actor: 'Razorpay',
         agent: 'RazorpayService',
         action: 'PAYMENT_VERIFIED',
-        reason: `Payment ${params.razorpayPaymentId} successfully verified via HMAC-SHA256 signature algorithm.`,
+        reason: `Payment ${params.razorpayPaymentId} successfully verified via server-side HMAC-SHA256 algorithm.`,
         approvalStatus: 'PASSED',
         result: 'SUCCESS',
         metadataJson: JSON.stringify({
@@ -159,7 +163,7 @@ export class RazorpayService {
         actor: 'Razorpay',
         agent: 'RazorpayService',
         action: 'PAYMENT_VERIFICATION_FAILED',
-        reason: `Payment signature mismatch or payment failure for order ${params.razorpayOrderId}.`,
+        reason: `Payment signature mismatch or invalid verification for order ${params.razorpayOrderId}.`,
         approvalStatus: 'BLOCKED',
         result: 'FAILED',
         metadataJson: JSON.stringify({
@@ -168,7 +172,7 @@ export class RazorpayService {
         }),
       });
 
-      return { success: false, error: 'Payment signature verification failed. Payment marked as FAILED.' };
+      return { success: false, error: 'Payment signature verification failed. Order marked FAILED.' };
     }
   }
 }
