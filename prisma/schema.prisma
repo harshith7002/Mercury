@@ -1,0 +1,110 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Product {
+  id                      String   @id @default(uuid())
+  name                    String
+  description             String
+  category                String
+  price                   Float
+  currency                String   @default("INR")
+  inventory               Int      @default(100)
+  features                String   // JSON string
+  tags                    String   // JSON string
+  compatibleProducts      String   // JSON string array of IDs
+  frequentlyBoughtTogether String  // JSON array of { productId, score, reason }
+  discountRules           String   // JSON string
+  merchantPolicy          String   // JSON string
+  active                  Boolean  @default(true)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+}
+
+model Customer {
+  id          String   @id @default(uuid())
+  name        String
+  email       String
+  segment     String   @default("Standard")
+  totalSpent  Float    @default(0)
+  orderCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+model Order {
+  id                String      @id @default(uuid())
+  customerId        String?
+  customerName      String
+  customerEmail     String
+  totalAmount       Float
+  baseAmount        Float
+  upsellAmount      Float       @default(0)
+  discountAmount    Float       @default(0)
+  isAiAssisted      Boolean     @default(true)
+  status            String      @default("PENDING") // PENDING, AUTHORIZED, CAPTURED, FAILED, CANCELLED
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  razorpaySignature String?
+  paymentMethod     String?     @default("TEST_MODE")
+  items             OrderItem[]
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+}
+
+model OrderItem {
+  id          String   @id @default(uuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  productName String
+  unitPrice   Float
+  quantity    Int      @default(1)
+  isUpsell    Boolean  @default(false)
+}
+
+model Policy {
+  id                        String   @id @default("merchant_default")
+  merchantName              String   @default("Mercury Flagship Store")
+  maxAutoDiscountAmount     Float    @default(1000.0)
+  maxAutoDiscountPercent    Float    @default(20.0)
+  maxCampaignBudget         Float    @default(25000.0)
+  maxAutoTransactionAmount  Float    @default(10000.0)
+  approvalThresholdAmount   Float    @default(10000.0)
+  maxUpsellAttempts         Int      @default(1)
+  maxPromosPerCustomer      Int      @default(2)
+  active                    Boolean  @default(true)
+  updatedAt                 DateTime @updatedAt
+}
+
+model ApprovalRequest {
+  id              String    @id @default(uuid())
+  agentType       String    // BUYER_AGENT, GROWTH_AGENT
+  actionType      String    // EXCESSIVE_DISCOUNT, HIGH_VALUE_TRANSACTION, CAMPAIGN_LAUNCH
+  requestedAmount Float
+  policyLimit     Float
+  reason          String
+  payloadJson     String    // detailed action data
+  status          String    @default("PENDING") // PENDING, APPROVED, REJECTED
+  decidedBy       String?
+  decidedAt       DateTime?
+  createdAt       DateTime  @default(now())
+}
+
+model AuditEvent {
+  id             String   @id @default(uuid())
+  timestamp      DateTime @default(now())
+  actor          String   // AI Buyer, Merchant Growth Agent, Policy Engine, Razorpay, Merchant Admin
+  agent          String?
+  action         String
+  reason         String
+  amount         Float?
+  policy         String?
+  approvalStatus String?  // APPROVED, BLOCKED, PASSED, REJECTED, NOT_REQUIRED
+  result         String?  // SUCCESS, FAILED, BLOCKED, PENDING
+  metadataJson   String?
+}
