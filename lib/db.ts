@@ -5,35 +5,37 @@ import fs from 'fs';
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
 function getDatabaseUrl(): string {
-  // If user provided a non-file database URL (e.g. Postgres on Neon/Supabase), use it directly
+  // If user provided a cloud database URL (e.g., Supabase / Neon / Postgres), use it directly
   if (process.env.DATABASE_URL && !process.env.DATABASE_URL.startsWith('file:')) {
     return process.env.DATABASE_URL;
   }
 
-  // Resolve potential SQLite file locations on Vercel / serverless runtime
-  const cwd = process.cwd();
-  const prismaDbPath = path.join(cwd, 'prisma', 'dev.db');
-  const rootDbPath = path.join(cwd, 'dev.db');
+  // On Vercel / AWS Lambda serverless functions, the root directory (/var/task) is READ-ONLY.
+  // The ONLY writable location is /tmp.
   const tmpDbPath = '/tmp/dev.db';
+  const cwd = process.cwd();
+  const bundledPrismaDb = path.join(cwd, 'prisma', 'dev.db');
+  const bundledRootDb = path.join(cwd, 'dev.db');
 
-  let selectedPath = prismaDbPath;
-
-  if (fs.existsSync(prismaDbPath)) {
-    selectedPath = prismaDbPath;
-  } else if (fs.existsSync(rootDbPath)) {
-    selectedPath = rootDbPath;
-  } else if (fs.existsSync(tmpDbPath)) {
-    selectedPath = tmpDbPath;
-  } else {
-    // If not found yet, try copying from cwd if possible
-    try {
-      if (fs.existsSync(prismaDbPath)) {
-        fs.copyFileSync(prismaDbPath, tmpDbPath);
-        selectedPath = tmpDbPath;
+  // Copy bundled seed database to /tmp on lambda cold start if not present
+  try {
+    const shouldCopy = !fs.existsSync(tmpDbPath) || fs.statSync(tmpDbPath).size === 0;
+    if (shouldCopy) {
+      if (fs.existsSync(bundledPrismaDb) && fs.statSync(bundledPrismaDb).size > 0) {
+        fs.copyFileSync(bundledPrismaDb, tmpDbPath);
+      } else if (fs.existsSync(bundledRootDb) && fs.statSync(bundledRootDb).size > 0) {
+        fs.copyFileSync(bundledRootDb, tmpDbPath);
       }
-    } catch (e) {
-      // fallback
     }
+  } catch (err) {
+    console.error('Error copying SQLite database to writable /tmp directory:', err);
+  }
+
+  // If /tmp/dev.db exists and is writable, use it. Otherwise fall back.
+  let selectedPath = tmpDbPath;
+  if (!fs.existsSync(tmpDbPath)) {
+    if (fs.existsSync(bundledPrismaDb)) selectedPath = bundledPrismaDb;
+    else if (fs.existsSync(bundledRootDb)) selectedPath = bundledRootDb;
   }
 
   return `file:${selectedPath}`;
