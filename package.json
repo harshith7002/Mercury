@@ -4,12 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && prisma db push && tsx prisma/seed.ts && next build",
+    "build": "prisma generate && prisma db push && npx --yes tsx prisma/seed.ts && node -e \"const fs=require('fs'); try{fs.copyFileSync('prisma/dev.db','dev.db')}catch(e){}; try{fs.copyFileSync('prisma/dev.db','/tmp/dev.db')}catch(e){}\" && next build",
     "start": "next start",
     "lint": "next lint",
     "db:push": "prisma db push",
-    "db:seed": "npx --yes tsx prisma/seed.ts",
-    "build": "prisma generate && prisma db push && npx --yes tsx prisma/seed.ts && next build"
+    "db:seed": "npx --yes tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.19.1",
