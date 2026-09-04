@@ -33,6 +33,7 @@ export class CatalogTools {
       price: p.price,
       currency: p.currency,
       inventory: p.inventory,
+      imageUrl: p.imageUrl || 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&auto=format&fit=crop&q=80',
       features: JSON.parse(p.features || '[]'),
       tags: JSON.parse(p.tags || '[]'),
       compatibleProducts: JSON.parse(p.compatibleProducts || '[]'),
@@ -71,6 +72,7 @@ export class CatalogTools {
       price: p.price,
       currency: p.currency,
       inventory: p.inventory,
+      imageUrl: p.imageUrl || 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&auto=format&fit=crop&q=80',
       features: JSON.parse(p.features || '[]'),
       tags: JSON.parse(p.tags || '[]'),
       compatibleProducts: JSON.parse(p.compatibleProducts || '[]'),
@@ -88,7 +90,6 @@ export class CatalogTools {
     const mainProduct = await this.getProductById(mainProductId);
     if (!mainProduct) return null;
 
-    // Check frequently bought together list
     let targetUpsellId: string | null = null;
     let confidenceScore = 0.31;
     let reasonText = '31% of historical buyers of this product category purchased this complementary item.';
@@ -103,7 +104,6 @@ export class CatalogTools {
       confidenceScore = 0.28;
       reasonText = 'Highly compatible accessory recommended for desktop ergonomic setup.';
     } else {
-      // Fallback accessory
       targetUpsellId = 'prod_wrist_rest';
     }
 
@@ -111,7 +111,7 @@ export class CatalogTools {
     if (!upsellProduct) return null;
 
     const originalPrice = upsellProduct.price;
-    const discountAmount = 0; // standard price or promo
+    const discountAmount = 0;
     const discountedPrice = originalPrice - discountAmount;
 
     return {

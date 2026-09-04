@@ -58,13 +58,19 @@ export function CartDrawer({
                 {cart.items.map((item) => (
                   <div
                     key={item.product.id}
-                    className="flex items-center justify-between p-3.5 rounded-xl border border-slate-800 bg-slate-950/80"
+                    className="flex items-center gap-3 p-3.5 rounded-xl border border-slate-800 bg-slate-950/80"
                   >
-                    <div className="flex-1 pr-3">
+                    <img
+                      src={item.product.imageUrl || 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&auto=format&fit=crop&q=80'}
+                      alt={item.product.name}
+                      className="h-12 w-12 rounded-lg object-cover border border-slate-800 shrink-0"
+                    />
+
+                    <div className="flex-1 min-w-0 pr-2">
                       <div className="flex items-center gap-1.5 mb-1">
-                        <span className="text-xs font-semibold text-slate-200">{item.product.name}</span>
+                        <span className="text-xs font-semibold text-slate-200 truncate">{item.product.name}</span>
                         {item.isUpsell && (
-                          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-indigo-950 text-indigo-400 border border-indigo-800">
+                          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-indigo-950 text-indigo-400 border border-indigo-800 shrink-0">
                             GROWTH UPSELL
                           </span>
                         )}
@@ -76,7 +82,7 @@ export function CartDrawer({
 
                     <button
                       onClick={() => onRemoveItem(item.product.id)}
-                      className="text-slate-500 hover:text-rose-400 transition-colors p-1"
+                      className="text-slate-500 hover:text-rose-400 transition-colors p-1 shrink-0"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -93,18 +99,23 @@ export function CartDrawer({
                   <span>Merchant Growth Agent Recommendation</span>
                 </div>
                 <p className="text-xs text-slate-300 leading-relaxed font-sans">{upsellOffer.reason}</p>
-                <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-900 border border-indigo-800">
-                  <div>
-                    <div className="text-xs font-semibold text-white">{upsellOffer.product.name}</div>
+                <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-900 border border-indigo-800 gap-2">
+                  <img
+                    src={upsellOffer.product.imageUrl || 'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=600&auto=format&fit=crop&q=80'}
+                    alt={upsellOffer.product.name}
+                    className="h-10 w-10 rounded object-cover border border-slate-800 shrink-0"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-semibold text-white truncate">{upsellOffer.product.name}</div>
                     <div className="text-xs font-mono font-bold text-emerald-400">
                       ₹{upsellOffer.discountedPrice.toLocaleString('en-IN')}
                     </div>
                   </div>
                   <button
                     onClick={() => onAddUpsell(upsellOffer)}
-                    className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition-all shadow-md shadow-indigo-600/30"
+                    className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition-all shadow-md shadow-indigo-600/30 shrink-0"
                   >
-                    + Add to Cart
+                    + Add
                   </button>
                 </div>
               </div>

@@ -6,6 +6,7 @@ export interface ProductItem {
   price: number;
   currency: string;
   inventory: number;
+  imageUrl?: string;
   features: string[];
   tags: string[];
   compatibleProducts: string[];

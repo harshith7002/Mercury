@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Send, ShoppingBag, Sparkles, Check, ArrowRight, ShieldCheck, RefreshCw, Cpu, Layers, HelpCircle } from 'lucide-react';
+import { Send, ShoppingBag, Sparkles, Check, ArrowRight, ShieldCheck, RefreshCw, Cpu, Layers, HelpCircle, Star, Image as ImageIcon } from 'lucide-react';
 import { ProductItem, CartItem, CartState, AgentStep, UpsellRecommendation } from '@/types';
 import { AgentActivityPanel } from '@/components/AgentActivityPanel';
 import { CartDrawer } from '@/components/CartDrawer';
@@ -98,7 +98,6 @@ export default function BuyerPage() {
     setPromptInput('');
     setIsProcessing(true);
 
-    // Add user message
     const userMsgId = `usr_${Date.now()}`;
     setMessages((prev) => [...prev, { id: userMsgId, sender: 'user', text: query }]);
 
@@ -156,7 +155,6 @@ export default function BuyerPage() {
     setIsInitiatingCheckout(true);
 
     try {
-      // 1. Create order record in DB
       const orderRes = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -177,7 +175,6 @@ export default function BuyerPage() {
         return;
       }
 
-      // 2. Create Razorpay Order
       const rzpRes = await fetch('/api/razorpay/order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -224,7 +221,7 @@ export default function BuyerPage() {
 
         <button
           onClick={() => setIsCartOpen(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs border border-slate-700 transition-all relative"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs border border-slate-700 transition-all relative shadow-md"
         >
           <ShoppingBag className="h-4 w-4 text-blue-400" />
           <span>Cart ({cart.items.length})</span>
@@ -263,14 +260,14 @@ export default function BuyerPage() {
           </div>
 
           {/* Conversation Feed */}
-          <div className="h-[460px] overflow-y-auto rounded-2xl border border-slate-800 bg-slate-950 p-4 space-y-4 shadow-inner">
+          <div className="h-[520px] overflow-y-auto rounded-2xl border border-slate-800 bg-slate-950 p-4 space-y-4 shadow-inner">
             {messages.map((msg) => (
               <div
                 key={msg.id}
                 className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}
               >
                 <div
-                  className={`max-w-[85%] rounded-2xl p-4 text-xs leading-relaxed ${
+                  className={`max-w-[88%] rounded-2xl p-4 text-xs leading-relaxed ${
                     msg.sender === 'user'
                       ? 'bg-blue-600 text-white rounded-br-none shadow-md shadow-blue-600/20 font-sans'
                       : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-bl-none shadow-md'
@@ -278,22 +275,35 @@ export default function BuyerPage() {
                 >
                   <div className="whitespace-pre-wrap font-sans">{msg.text}</div>
 
-                  {/* Recommended Product Card inside message */}
+                  {/* Recommended Product Card inside message with Photo */}
                   {msg.product && (
-                    <div className="mt-4 p-4 rounded-xl border border-blue-800/80 bg-slate-950 text-left space-y-3">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-blue-950 text-blue-400 border border-blue-800">
-                            BEST MATCH
+                    <div className="mt-4 p-4 rounded-xl border border-blue-800/80 bg-slate-950 text-left space-y-3.5 shadow-xl">
+                      
+                      {/* Product Image Header */}
+                      <div className="relative h-44 w-full rounded-lg overflow-hidden border border-slate-800 group">
+                        <img
+                          src={msg.product.imageUrl || 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&auto=format&fit=crop&q=80'}
+                          alt={msg.product.name}
+                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <div className="absolute top-2 left-2 flex items-center gap-1.5">
+                          <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-blue-600 text-white shadow-md font-bold">
+                            ★ TOP MATCH
                           </span>
-                          <h4 className="text-sm font-bold text-white mt-1.5">{msg.product.name}</h4>
                         </div>
-                        <span className="text-base font-extrabold text-blue-400 font-mono">
+                        <div className="absolute bottom-2 right-2 bg-slate-950/90 backdrop-blur-md border border-slate-800 px-2.5 py-1 rounded-lg text-xs font-mono font-extrabold text-blue-400">
                           ₹{msg.product.price.toLocaleString('en-IN')}
-                        </span>
+                        </div>
                       </div>
 
-                      <div className="space-y-1">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h4 className="text-sm font-bold text-white">{msg.product.name}</h4>
+                          <span className="text-[10px] font-mono text-slate-400">{msg.product.category}</span>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-1.5 pt-1 border-t border-slate-800/80">
                         {msg.product.features.slice(0, 4).map((feat, fidx) => (
                           <div key={fidx} className="flex items-center gap-1.5 text-[11px] text-slate-300">
                             <Check className="h-3 w-3 text-emerald-400 shrink-0" />
@@ -304,7 +314,7 @@ export default function BuyerPage() {
 
                       <button
                         onClick={() => handleAddToCart(msg.product!)}
-                        className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-md shadow-blue-600/30 transition-all"
+                        className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-md shadow-blue-600/30 transition-all"
                       >
                         <ShoppingBag className="h-3.5 w-3.5" />
                         <span>Add Product to Cart</span>
@@ -346,17 +356,17 @@ export default function BuyerPage() {
         {/* Right Column: Live Agent Timeline & Growth Agent Upsell */}
         <div className="lg:col-span-5 space-y-6">
           
-          {/* Growth Agent Recommendation Banner */}
+          {/* Growth Agent Recommendation Card with Product Image */}
           {currentUpsell && (
-            <div className="rounded-2xl border border-indigo-900/90 bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 p-5 shadow-2xl space-y-3">
+            <div className="rounded-2xl border border-indigo-900/90 bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 p-5 shadow-2xl space-y-3.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-indigo-400" />
                   <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-200">
-                    Merchant Growth Agent Opportunity
+                    Merchant Growth Opportunity
                   </h3>
                 </div>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-700">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-700 font-bold">
                   {Math.round(currentUpsell.confidenceScore * 100)}% AFFINITY
                 </span>
               </div>
@@ -365,9 +375,15 @@ export default function BuyerPage() {
                 "{currentUpsell.reason}"
               </p>
 
-              <div className="p-3.5 rounded-xl bg-slate-950 border border-indigo-800/80 flex items-center justify-between">
-                <div>
-                  <div className="text-xs font-bold text-white">{currentUpsell.product.name}</div>
+              {/* Upsell Product Visual Card */}
+              <div className="p-3.5 rounded-xl bg-slate-950 border border-indigo-800/80 flex items-center gap-3">
+                <img
+                  src={currentUpsell.product.imageUrl || 'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=600&auto=format&fit=crop&q=80'}
+                  alt={currentUpsell.product.name}
+                  className="h-14 w-14 rounded-lg object-cover border border-slate-800 shrink-0"
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-bold text-white truncate">{currentUpsell.product.name}</div>
                   <div className="text-xs font-mono font-extrabold text-emerald-400 mt-0.5">
                     ₹{currentUpsell.discountedPrice.toLocaleString('en-IN')}
                   </div>
@@ -375,7 +391,7 @@ export default function BuyerPage() {
 
                 <button
                   onClick={() => handleAddToCart(currentUpsell.product, true, currentUpsell.reason)}
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-md shadow-indigo-600/30 transition-all"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-md shadow-indigo-600/30 transition-all shrink-0"
                 >
                   <span>Accept Upsell</span>
                   <ArrowRight className="h-3.5 w-3.5" />

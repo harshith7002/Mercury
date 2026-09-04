@@ -15,6 +15,7 @@ model Product {
   price                   Float
   currency                String   @default("INR")
   inventory               Int      @default(100)
+  imageUrl                String?
   features                String   // JSON string
   tags                    String   // JSON string
   compatibleProducts      String   // JSON string array of IDs

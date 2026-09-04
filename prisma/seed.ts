@@ -11,6 +11,7 @@ const PRODUCTS_DATA = [
     category: "Electronics",
     price: 5499,
     inventory: 85,
+    imageUrl: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&auto=format&fit=crop&q=80",
     features: JSON.stringify(["75% Layout", "Gateron Brown Switches", "RGB Backlight", "Bluetooth 5.1 & Wired", "4000mAh Battery"]),
     tags: JSON.stringify(["keyboard", "mechanical", "coding", "wireless", "mac", "windows"]),
     compatibleProducts: JSON.stringify(["prod_wrist_rest", "prod_keycaps", "prod_coiled_cable"]),
@@ -29,6 +30,7 @@ const PRODUCTS_DATA = [
     category: "Electronics",
     price: 64999,
     inventory: 30,
+    imageUrl: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&auto=format&fit=crop&q=80",
     features: JSON.stringify(["16GB Unified RAM", "512GB High-Speed SSD", "Retina XDR Display", "Silent Cooling", "18h Battery"]),
     tags: JSON.stringify(["laptop", "developer", "coding", "macbook", "high-performance"]),
     compatibleProducts: JSON.stringify(["prod_mouse_mx", "prod_laptop_stand", "prod_usbc_hub", "prod_sleeve_14"]),
@@ -47,6 +49,7 @@ const PRODUCTS_DATA = [
     category: "Electronics",
     price: 124999,
     inventory: 15,
+    imageUrl: "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=600&auto=format&fit=crop&q=80",
     features: JSON.stringify(["36GB RAM", "1TB SSD", "16-inch 120Hz Display", "Thunderbolt 4"]),
     tags: JSON.stringify(["laptop", "workstation", "high-end", "developer"]),
     compatibleProducts: JSON.stringify(["prod_monitor_34", "prod_usbc_hub", "prod_mouse_mx"]),
@@ -63,6 +66,7 @@ const PRODUCTS_DATA = [
     category: "Electronics",
     price: 32999,
     inventory: 22,
+    imageUrl: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=600&auto=format&fit=crop&q=80",
     features: JSON.stringify(["34 inch Curved WQHD", "144Hz IPS", "90W USB-C Charging", "HDR400"]),
     tags: JSON.stringify(["monitor", "ultrawide", "display", "desk-setup"]),
     compatibleProducts: JSON.stringify(["prod_monitor_arm", "prod_light_bar"]),
@@ -80,6 +84,7 @@ const PRODUCTS_DATA = [
     category: "Electronics",
     price: 12499,
     inventory: 50,
+    imageUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80",
     features: JSON.stringify(["Active Noise Cancellation", "40h Playtime", "Multipoint Bluetooth", "Transparency Mode"]),
     tags: JSON.stringify(["headphones", "anc", "audio", "focus", "office"]),
     compatibleProducts: JSON.stringify(["prod_headphone_stand"]),
@@ -88,54 +93,6 @@ const PRODUCTS_DATA = [
     ]),
     discountRules: JSON.stringify({ maxDiscountPercent: 15, promoEligible: true }),
     merchantPolicy: JSON.stringify({ minMarginPercent: 30, maxUpsellDiscount: 300 })
-  },
-  {
-    id: "prod_ssd_1tb",
-    name: "Mercury Velocity 1TB Portable SSD",
-    description: "Rugged USB 3.2 Gen 2x2 external SSD with up to 2000MB/s read speeds and AES 256-bit hardware encryption.",
-    category: "Electronics",
-    price: 7299,
-    inventory: 90,
-    features: JSON.stringify(["1TB Storage", "2000MB/s Speed", "IP55 Water Resistant", "USB-C & USB-A Cables"]),
-    tags: JSON.stringify(["ssd", "storage", "portable", "backup"]),
-    compatibleProducts: JSON.stringify(["prod_usbc_hub"]),
-    frequentlyBoughtTogether: JSON.stringify([
-      { productId: "prod_usbc_hub", score: 0.20, reason: "20% purchase with a USB hub." }
-    ]),
-    discountRules: JSON.stringify({ maxDiscountPercent: 10, promoEligible: true }),
-    merchantPolicy: JSON.stringify({ minMarginPercent: 40, maxUpsellDiscount: 200 })
-  },
-  {
-    id: "prod_webcam_4k",
-    name: "Mercury Studio 4K Webcam",
-    description: "Pro 4K HDR webcam with AI auto-framing, dual noise-reducing microphones, and physical privacy shutter.",
-    category: "Electronics",
-    price: 8999,
-    inventory: 40,
-    features: JSON.stringify(["4K Ultra HD @ 30fps", "AI Auto-Framing", "Dual Mics", "Privacy Cover"]),
-    tags: JSON.stringify(["webcam", "video", "streaming", "remote-work"]),
-    compatibleProducts: JSON.stringify(["prod_light_ring"]),
-    frequentlyBoughtTogether: JSON.stringify([
-      { productId: "prod_light_ring", score: 0.35, reason: "35% add desk ring lighting for studio quality video." }
-    ]),
-    discountRules: JSON.stringify({ maxDiscountPercent: 15, promoEligible: true }),
-    merchantPolicy: JSON.stringify({ minMarginPercent: 35, maxUpsellDiscount: 250 })
-  },
-  {
-    id: "prod_mic_condenser",
-    name: "Mercury Streamer USB Microphone",
-    description: "Cardioid condenser USB microphone with internal pop filter, gain control knob, and zero-latency headphone monitoring.",
-    category: "Electronics",
-    price: 6499,
-    inventory: 45,
-    features: JSON.stringify(["24-bit/96kHz Audio", "Tap-to-Mute", "Gain Knob", "Zero-Latency Monitoring"]),
-    tags: JSON.stringify(["mic", "microphone", "audio", "podcasting", "calls"]),
-    compatibleProducts: JSON.stringify(["prod_mic_arm"]),
-    frequentlyBoughtTogether: JSON.stringify([
-      { productId: "prod_mic_arm", score: 0.40, reason: "40% buy a desktop boom arm." }
-    ]),
-    discountRules: JSON.stringify({ maxDiscountPercent: 10, promoEligible: true }),
-    merchantPolicy: JSON.stringify({ minMarginPercent: 35, maxUpsellDiscount: 200 })
   },
 
   // Accessories
@@ -146,6 +103,7 @@ const PRODUCTS_DATA = [
     category: "Accessories",
     price: 799,
     inventory: 150,
+    imageUrl: "https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=600&auto=format&fit=crop&q=80",
     features: JSON.stringify(["Memory Foam", "Cooling Gel Top", "Anti-Slip Base", "75%/80% Keyboard Fit"]),
     tags: JSON.stringify(["wrist-rest", "ergonomic", "keyboard-accessory", "comfort"]),
     compatibleProducts: JSON.stringify(["prod_kbd_k2", "prod_keycaps"]),
@@ -160,6 +118,7 @@ const PRODUCTS_DATA = [
     category: "Accessories",
     price: 1499,
     inventory: 110,
+    imageUrl: "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=600&auto=format&fit=crop&q=80",
     features: JSON.stringify(["MagSpeed Scroll", "8K DPI Sensor", "Quiet Clicks", "USB-C Rechargeable"]),
     tags: JSON.stringify(["mouse", "ergonomic", "wireless", "productivity"]),
     compatibleProducts: JSON.stringify(["prod_laptop_dev14", "prod_desk_pad"]),
@@ -176,6 +135,7 @@ const PRODUCTS_DATA = [
     category: "Accessories",
     price: 1299,
     inventory: 130,
+    imageUrl: "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=600&auto=format&fit=crop&q=80",
     features: JSON.stringify(["Aircraft Aluminum", "Non-Slip Silicone", "Ventilation Cutouts", "Foldable"]),
     tags: JSON.stringify(["laptop-stand", "ergonomic", "desk-setup", "aluminum"]),
     compatibleProducts: JSON.stringify(["prod_laptop_dev14", "prod_usbc_hub"]),
@@ -190,6 +150,7 @@ const PRODUCTS_DATA = [
     category: "Accessories",
     price: 2199,
     inventory: 100,
+    imageUrl: "https://images.unsplash.com/photo-1544652478-6653e09f18a2?w=600&auto=format&fit=crop&q=80",
     features: JSON.stringify(["4K 60Hz HDMI", "100W PD Pass-through", "Gigabit Ethernet", "SD/TF Card Slots"]),
     tags: JSON.stringify(["usbc-hub", "adapter", "dock", "macbook-accessory"]),
     compatibleProducts: JSON.stringify(["prod_laptop_dev14", "prod_ssd_1tb"]),
@@ -198,60 +159,19 @@ const PRODUCTS_DATA = [
     merchantPolicy: JSON.stringify({ minMarginPercent: 40, maxUpsellDiscount: 200 })
   },
   {
-    id: "prod_keycaps",
-    name: "Custom PBT Double-shot Keycap Set",
-    description: "Premium cherry profile PBT keycaps resistant to shine and wear. Includes 134 keys compatible with ISO and ANSI layouts.",
-    category: "Accessories",
-    price: 1199,
-    inventory: 70,
-    features: JSON.stringify(["PBT Double-shot", "Cherry Profile", "134 Keys", "Thick 1.5mm Walls"]),
-    tags: JSON.stringify(["keycaps", "keyboard-mod", "pbt", "custom"]),
-    compatibleProducts: JSON.stringify(["prod_kbd_k2", "prod_coiled_cable"]),
-    frequentlyBoughtTogether: JSON.stringify([]),
-    discountRules: JSON.stringify({ maxDiscountPercent: 15, promoEligible: true }),
-    merchantPolicy: JSON.stringify({ minMarginPercent: 45, maxUpsellDiscount: 150 })
-  },
-  {
-    id: "prod_coiled_cable",
-    name: "Custom Coiled Aviator USB-C Cable",
-    description: "Double-sleeved coiled keyboard cable with GX16 5-pin detachable aviator connector and durable PET mesh overbraid.",
-    category: "Accessories",
-    price: 699,
-    inventory: 95,
-    features: JSON.stringify(["GX16 Aviator Connector", "Double-Sleeved Techflex", "6-inch Coiled Section", "Gold-Plated USB-C"]),
-    tags: JSON.stringify(["cable", "coiled-cable", "keyboard-accessory", "custom-desk"]),
-    compatibleProducts: JSON.stringify(["prod_kbd_k2"]),
-    frequentlyBoughtTogether: JSON.stringify([]),
-    discountRules: JSON.stringify({ maxDiscountPercent: 10, promoEligible: true }),
-    merchantPolicy: JSON.stringify({ minMarginPercent: 50, maxUpsellDiscount: 100 })
-  },
-  {
     id: "prod_desk_pad",
     name: "Premium Felt & Leather Desk Pad Mat (XL)",
     description: "Large 900x400mm dual-sided desk pad crafted from high-density wool felt and water-resistant PU leather.",
     category: "Accessories",
     price: 899,
     inventory: 140,
+    imageUrl: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&auto=format&fit=crop&q=80",
     features: JSON.stringify(["900x400mm XL", "Dual-Sided Felt/Leather", "Stitched Edges", "Non-Slip"]),
     tags: JSON.stringify(["desk-pad", "mat", "desk-setup", "leather", "felt"]),
     compatibleProducts: JSON.stringify(["prod_mouse_mx", "prod_kbd_k2"]),
     frequentlyBoughtTogether: JSON.stringify([]),
     discountRules: JSON.stringify({ maxDiscountPercent: 20, promoEligible: true }),
     merchantPolicy: JSON.stringify({ minMarginPercent: 55, maxUpsellDiscount: 150 })
-  },
-  {
-    id: "prod_light_bar",
-    name: "Smart ScreenBar LED Monitor Light",
-    description: "Asymmetric optical glare-free monitor light bar with auto-dimming sensor and touch controls for color temperature (2700K - 6500K).",
-    category: "Accessories",
-    price: 1899,
-    inventory: 80,
-    features: JSON.stringify(["Zero Screen Glare", "Auto-Dimming Sensor", "USB Powered", "Touch Adjust"]),
-    tags: JSON.stringify(["light-bar", "desk-lamp", "monitor-accessory", "eye-care"]),
-    compatibleProducts: JSON.stringify(["prod_monitor_34"]),
-    frequentlyBoughtTogether: JSON.stringify([]),
-    discountRules: JSON.stringify({ maxDiscountPercent: 15, promoEligible: true }),
-    merchantPolicy: JSON.stringify({ minMarginPercent: 40, maxUpsellDiscount: 200 })
   },
 
   // Office Equipment
@@ -262,6 +182,7 @@ const PRODUCTS_DATA = [
     category: "Office equipment",
     price: 24999,
     inventory: 20,
+    imageUrl: "https://images.unsplash.com/photo-1595515106969-1ce29566ff1c?w=600&auto=format&fit=crop&q=80",
     features: JSON.stringify(["Dual Motor Electric", "Memory Height Presets", "120kg Weight Capacity", "Solid Wood Top"]),
     tags: JSON.stringify(["standing-desk", "desk", "office", "ergonomic"]),
     compatibleProducts: JSON.stringify(["prod_chair_mesh", "prod_cable_mgmt"]),
@@ -279,6 +200,7 @@ const PRODUCTS_DATA = [
     category: "Office equipment",
     price: 14499,
     inventory: 35,
+    imageUrl: "https://images.unsplash.com/photo-1580481072645-022f9a6d83d0?w=600&auto=format&fit=crop&q=80",
     features: JSON.stringify(["3D Lumbar Support", "Breathable Mesh", "4D Armrests", "Class 4 Gas Lift"]),
     tags: JSON.stringify(["chair", "ergonomic", "office-chair", "seating"]),
     compatibleProducts: JSON.stringify(["prod_footrest"]),
@@ -287,20 +209,6 @@ const PRODUCTS_DATA = [
     ]),
     discountRules: JSON.stringify({ maxDiscountPercent: 12, promoEligible: true }),
     merchantPolicy: JSON.stringify({ minMarginPercent: 30, maxUpsellDiscount: 300 })
-  },
-  {
-    id: "prod_monitor_arm",
-    name: "Heavy-Duty Gas Spring Dual Monitor Arm",
-    description: "Full motion aluminum dual arm mount supporting two monitors up to 35 inches and 12kg each with integrated cable management.",
-    category: "Office equipment",
-    price: 3499,
-    inventory: 60,
-    features: JSON.stringify(["Dual Arm Mount", "Gas Spring Height Adjustment", "VESA 75/100", "Cable Channels"]),
-    tags: JSON.stringify(["monitor-arm", "mount", "desk-setup", "vesa"]),
-    compatibleProducts: JSON.stringify(["prod_monitor_34"]),
-    frequentlyBoughtTogether: JSON.stringify([]),
-    discountRules: JSON.stringify({ maxDiscountPercent: 15, promoEligible: true }),
-    merchantPolicy: JSON.stringify({ minMarginPercent: 40, maxUpsellDiscount: 200 })
   },
 
   // Software
@@ -311,6 +219,7 @@ const PRODUCTS_DATA = [
     category: "Software",
     price: 4999,
     inventory: 999,
+    imageUrl: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&auto=format&fit=crop&q=80",
     features: JSON.stringify(["All IDE Tools Included", "AI Completion Engine", "Cloud Sync", "Priority Support"]),
     tags: JSON.stringify(["software", "ide", "developer-tools", "license", "coding"]),
     compatibleProducts: JSON.stringify(["prod_sw_cloud"]),
@@ -320,36 +229,8 @@ const PRODUCTS_DATA = [
     discountRules: JSON.stringify({ maxDiscountPercent: 20, promoEligible: true }),
     merchantPolicy: JSON.stringify({ minMarginPercent: 70, maxUpsellDiscount: 300 })
   },
-  {
-    id: "prod_sw_cloud",
-    name: "Mercury Cloud Infrastructure Monitor (1-Year)",
-    description: "Real-time server APM, log management, and alert trigger tool with 10,000 metrics/min tracing.",
-    category: "Software",
-    price: 2499,
-    inventory: 999,
-    features: JSON.stringify(["Real-time APM", "Slack/Email Alerts", "Docker & K8s Support", "Data Retention"]),
-    tags: JSON.stringify(["software", "devops", "cloud", "monitoring"]),
-    compatibleProducts: JSON.stringify(["prod_sw_ide"]),
-    frequentlyBoughtTogether: JSON.stringify([]),
-    discountRules: JSON.stringify({ maxDiscountPercent: 25, promoEligible: true }),
-    merchantPolicy: JSON.stringify({ minMarginPercent: 75, maxUpsellDiscount: 200 })
-  },
 
   // Lifestyle
-  {
-    id: "prod_coffee_press",
-    name: "Thermal Insulated French Press Coffee Maker",
-    description: "Double-wall stainless steel French press with 4-level filtration system. Keeps coffee hot for 2 hours during long coding sessions.",
-    category: "Lifestyle",
-    price: 1599,
-    inventory: 75,
-    features: JSON.stringify(["1 Liter Capacity", "304 Stainless Steel", "4 Layer Filter", "Double Wall Vacuum"]),
-    tags: JSON.stringify(["coffee", "lifestyle", "mug", "desk-companion"]),
-    compatibleProducts: JSON.stringify(["prod_smart_mug"]),
-    frequentlyBoughtTogether: JSON.stringify([]),
-    discountRules: JSON.stringify({ maxDiscountPercent: 15, promoEligible: true }),
-    merchantPolicy: JSON.stringify({ minMarginPercent: 45, maxUpsellDiscount: 150 })
-  },
   {
     id: "prod_smart_mug",
     name: "Temperature Control Smart Heated Mug",
@@ -357,22 +238,51 @@ const PRODUCTS_DATA = [
     category: "Lifestyle",
     price: 3499,
     inventory: 50,
+    imageUrl: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600&auto=format&fit=crop&q=80",
     features: JSON.stringify(["App Temperature Control", "Charging Coaster", "Auto-Sleep", "IPX7 Waterproof"]),
     tags: JSON.stringify(["mug", "smart-home", "coffee", "lifestyle"]),
-    compatibleProducts: JSON.stringify(["prod_coffee_press"]),
+    compatibleProducts: JSON.stringify([]),
     frequentlyBoughtTogether: JSON.stringify([]),
     discountRules: JSON.stringify({ maxDiscountPercent: 10, promoEligible: true }),
     merchantPolicy: JSON.stringify({ minMarginPercent: 35, maxUpsellDiscount: 200 })
   }
 ];
 
-// Generate additional products to reach 50+ catalog items
+// Fallback image pool for generated products
+const CATEGORY_IMAGES: Record<string, string[]> = {
+  Electronics: [
+    "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=600&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80"
+  ],
+  Accessories: [
+    "https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=600&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=600&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=600&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1544652478-6653e09f18a2?w=600&auto=format&fit=crop&q=80"
+  ],
+  "Office equipment": [
+    "https://images.unsplash.com/photo-1595515106969-1ce29566ff1c?w=600&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1580481072645-022f9a6d83d0?w=600&auto=format&fit=crop&q=80"
+  ],
+  Software: [
+    "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&auto=format&fit=crop&q=80"
+  ],
+  Lifestyle: [
+    "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600&auto=format&fit=crop&q=80"
+  ]
+};
+
 function generateExtendedProducts() {
   const extra: typeof PRODUCTS_DATA = [];
   const baseCategories = ["Electronics", "Accessories", "Office equipment", "Software", "Lifestyle"];
   
-  for (let i = 1; i <= 30; i++) {
+  for (let i = 1; i <= 38; i++) {
     const cat = baseCategories[i % baseCategories.length];
+    const imgList = CATEGORY_IMAGES[cat] || CATEGORY_IMAGES.Electronics;
+    const imgUrl = imgList[i % imgList.length];
+
     const price = Math.floor(Math.random() * 80 + 5) * 100 + 99; // ₹599 to ₹8499
     extra.push({
       id: `prod_gen_${i}`,
@@ -381,6 +291,7 @@ function generateExtendedProducts() {
       category: cat,
       price: price,
       inventory: Math.floor(Math.random() * 80) + 20,
+      imageUrl: imgUrl,
       features: JSON.stringify(["Durable Construction", "1-Year Warranty", "Ergonomic Design"]),
       tags: JSON.stringify([cat.toLowerCase(), "gadget", "mercury", "pro"]),
       compatibleProducts: JSON.stringify(["prod_kbd_k2", "prod_mouse_mx"]),
@@ -428,7 +339,7 @@ async function main() {
   for (const p of allProductsData) {
     await prisma.product.create({ data: p });
   }
-  console.log(`✅ Seeded ${allProductsData.length} products into catalog.`);
+  console.log(`✅ Seeded ${allProductsData.length} products with high-res product photos.`);
 
   // 4. Seed Customers (500 Total)
   const firstNames = ["Aarav", "Ananya", "Rohan", "Priya", "Vikram", "Neha", "Aditya", "Sneha", "Karan", "Diya", "Rahul", "Pooja", "Siddharth", "Ishaan", "Meera", "Kabir", "Tanvi", "Arjun", "Riya", "Dev"];
@@ -466,7 +377,6 @@ async function main() {
   let totalSeededRevenue = 0;
   let totalAiAssistedRevenue = 0;
   let totalUpsellRevenue = 0;
-  let orderCount = 0;
 
   const now = new Date();
 
@@ -504,7 +414,6 @@ async function main() {
     const discountAmount = isAi && Math.random() < 0.4 ? Math.min(500, Math.floor(baseAmount * 0.1)) : 0;
     const totalAmount = baseAmount + upsellAmount - discountAmount;
 
-    // Randomize created date over last 90 days
     const daysAgo = Math.floor(Math.random() * 90);
     const createdAt = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
 
@@ -535,7 +444,6 @@ async function main() {
       totalSeededRevenue += totalAmount;
       if (isAi) totalAiAssistedRevenue += totalAmount;
       totalUpsellRevenue += upsellAmount;
-      orderCount++;
     }
   }
 
