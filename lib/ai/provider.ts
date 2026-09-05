@@ -17,7 +17,7 @@ export class AIProvider {
     const p = prompt.toLowerCase();
     const keywords: string[] = [];
 
-    // Budget extraction (e.g. "under ₹6,000", "under 6000", "below 70000", "under 50000", "under ₹2,000")
+    // Budget extraction (e.g. "under ₹6,000", "under 6000", "below 70000", "under 4000", "under ₹2,000")
     let maxBudget: number | undefined = undefined;
     const budgetMatch = prompt.match(/(?:under|below|less than|within|budget|max|₹|\$)\s*₹?\s*([\d,]+)/i);
     if (budgetMatch) {
@@ -42,8 +42,8 @@ export class AIProvider {
     } else if (p.includes('monitor') || p.includes('screen') || p.includes('display')) {
       keywords.push('monitor');
       category = 'Electronics';
-    } else if (p.includes('headphone') || p.includes('audio') || p.includes('anc') || p.includes('listen')) {
-      keywords.push('headphones');
+    } else if (p.includes('headphone') || p.includes('headphones') || p.includes('audio') || p.includes('anc') || p.includes('listen')) {
+      keywords.push('headphone');
       category = 'Electronics';
     } else if (p.includes('stand') || p.includes('desk pad') || p.includes('hub') || p.includes('wrist rest')) {
       keywords.push('accessory');
@@ -85,12 +85,17 @@ export class AIProvider {
   }> {
     const intent = await this.parseBuyerIntent(prompt);
     
-    // Search catalog with keyword + category + budget parameters
+    // First, search items matching category & budget
     let catalog = await CatalogTools.searchCatalog({
       maxPrice: intent.maxBudget,
       query: intent.keywords[0],
       category: intent.category,
     });
+
+    // Check if category items exist regardless of budget
+    const categoryExactItems = intent.keywords[0]
+      ? await CatalogTools.searchCatalog({ query: intent.keywords[0] })
+      : [];
 
     // Fallback search if query was broad (e.g. "college", "home office")
     if (catalog.length === 0) {
@@ -109,9 +114,14 @@ export class AIProvider {
         replyText = `The most budget-friendly option matching your request is the **${recommendedProduct.name}** at ₹${recommendedProduct.price.toLocaleString('en-IN')}.\n\n*Details:* ${recommendedProduct.description}`;
       } else {
         recommendedProduct = catalog[0];
-        const budgetNotice = intent.maxBudget
-          ? `Within your budget of ₹${intent.maxBudget.toLocaleString('en-IN')}, `
-          : '';
+        let budgetNotice = '';
+
+        if (intent.maxBudget && categoryExactItems.length > 0 && categoryExactItems[0].price > intent.maxBudget) {
+          const categoryItem = categoryExactItems[0];
+          budgetNotice = `Our **${categoryItem.name}** is priced at ₹${categoryItem.price.toLocaleString('en-IN')} (which exceeds your target budget of ₹${intent.maxBudget.toLocaleString('en-IN')}). Within ₹${intent.maxBudget.toLocaleString('en-IN')}, `;
+        } else if (intent.maxBudget) {
+          budgetNotice = `Within your budget of ₹${intent.maxBudget.toLocaleString('en-IN')}, `;
+        }
 
         replyText = `${budgetNotice}I recommend the **${recommendedProduct.name}** priced at ₹${recommendedProduct.price.toLocaleString('en-IN')}.\n\n**Why this matches your needs:**\n${recommendedProduct.features.map((f) => `• ${f}`).join('\n')}\n\n*Rationale:* ${recommendedProduct.description}`;
       }
