@@ -31,8 +31,10 @@ const config: Config = {
         }
       },
       fontFamily: {
-        sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
-        mono: ["var(--font-geist-mono)", "monospace"],
+        serif: ["'Instrument Serif'", "serif"],
+        display: ["'Instrument Serif'", "serif"],
+        sans: ["'Inter'", "system-ui", "sans-serif"],
+        mono: ["monospace"],
       },
     },
   },
