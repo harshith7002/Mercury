@@ -16,6 +16,8 @@
 # db & local data
 prisma/*.db
 prisma/*.db-journal
+*.db
+*.db-journal
 
 # misc
 .DS_Store
