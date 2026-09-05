@@ -1,20 +1,19 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Bot, Code, ExternalLink, Check, Copy, Play, Sparkles, Shield, ArrowRight } from 'lucide-react';
+import { Bot, Code, ExternalLink, Check, Copy, Play, Sparkles, Shield, ArrowRight, RefreshCw, Cpu } from 'lucide-react';
 
 export const AgentMarketplaceTab: React.FC = () => {
   const [jsonLdData, setJsonLdData] = useState<any>(null);
   const [openApiData, setOpenApiData] = useState<any>(null);
   const [copiedLd, setCopiedLd] = useState(false);
   const [copiedApi, setCopiedApi] = useState(false);
-  const [activeSubTab, setActiveSubTab] = useState<'catalog' | 'openapi' | 'tester'>('catalog');
+  const [activeSubTab, setActiveSubTab] = useState<'catalog' | 'openapi' | 'runner'>('catalog');
 
-  // Simulation Tester State
-  const [testProductId, setTestProductId] = useState('cm45k001');
-  const [testBudget, setTestBudget] = useState(7500);
-  const [testResponse, setTestResponse] = useState<any>(null);
-  const [isTesting, setIsTesting] = useState(false);
+  // External Agent Runner State
+  const [externalPrompt, setExternalPrompt] = useState('I need a mechanical keyboard for programming under ₹6,000.');
+  const [runnerResult, setRunnerResult] = useState<any>(null);
+  const [isRunningAgent, setIsRunningAgent] = useState(false);
 
   useEffect(() => {
     fetch('/api/ai-catalog')
@@ -40,25 +39,21 @@ export const AgentMarketplaceTab: React.FC = () => {
     setTimeout(() => setCopiedApi(false), 2000);
   };
 
-  const handleRunAgenticTest = async () => {
-    setIsTesting(true);
-    setTestResponse(null);
+  const handleRunExternalAgent = async () => {
+    setIsRunningAgent(true);
+    setRunnerResult(null);
     try {
-      const res = await fetch('/api/buyer/negotiate', {
+      const res = await fetch('/api/agent/run-external-buyer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          productId: testProductId || 'cm45k001',
-          requestedBudget: Number(testBudget),
-          buyerNote: 'Simulated Autonomous Agentic Buyer Intent',
-        }),
+        body: JSON.stringify({ prompt: externalPrompt }),
       });
       const data = await res.json();
-      setTestResponse(data);
+      setRunnerResult(data);
     } catch (err: any) {
-      setTestResponse({ error: err.message });
+      setRunnerResult({ error: err.message });
     } finally {
-      setIsTesting(false);
+      setIsRunningAgent(false);
     }
   };
 
@@ -70,13 +65,13 @@ export const AgentMarketplaceTab: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 text-cyan-400 font-semibold text-sm mb-1">
               <Bot className="w-4 h-4" />
-              TRACK 01 MANDATE: MAKE MERCHANTS SELLABLE TO AI BUYERS
+              TRACK 01 INFRASTRUCTURE: AGENT-TO-MERCHANT (A2M) GATEWAY
             </div>
             <h2 className="text-2xl font-bold text-white tracking-tight">
               Machine-Readable AI Agent Catalog & Protocol Inspector
             </h2>
             <p className="text-slate-400 text-sm mt-1 max-w-3xl">
-              Exposes standard schema.org JSON-LD feeds and OpenAPI specifications for third-party AI agents (ChatGPT, Claude, AutoGPT) to discover inventory, policy caps, and execute policy-governed purchases.
+              Exposes standard schema.org JSON-LD feeds and OpenAPI specifications for third-party AI agents (ChatGPT, Claude, AutoGPT) to discover inventory, policy caps, and execute policy-governed purchases over pure HTTP APIs.
             </p>
           </div>
 
@@ -125,15 +120,15 @@ export const AgentMarketplaceTab: React.FC = () => {
             OpenAPI 3.0 Specification
           </button>
           <button
-            onClick={() => setActiveSubTab('tester')}
+            onClick={() => setActiveSubTab('runner')}
             className={`pb-3 text-xs font-mono font-semibold transition-all border-b-2 flex items-center gap-2 ${
-              activeSubTab === 'tester'
-                ? 'border-purple-400 text-purple-400'
+              activeSubTab === 'runner'
+                ? 'border-emerald-400 text-emerald-400'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
             <Play className="w-4 h-4" />
-            A2A Autonomous Agentic Sandbox
+            Run Independent External AI Buyer Agent
           </button>
         </div>
       </div>
@@ -175,56 +170,82 @@ export const AgentMarketplaceTab: React.FC = () => {
         </div>
       )}
 
-      {activeSubTab === 'tester' && (
+      {activeSubTab === 'runner' && (
         <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-6 space-y-6">
           <div>
-            <h3 className="text-base font-semibold text-white flex items-center gap-2">
-              <Bot className="w-4 h-4 text-purple-400" />
-              Simulate External Agentic Buyer Request (A2A Protocol)
-            </h3>
+            <div className="flex items-center gap-2">
+              <Cpu className="w-5 h-5 text-emerald-400" />
+              <h3 className="text-base font-bold text-white">
+                Execute Headless HTTP AI Buyer Agent (A2M Protocol)
+              </h3>
+            </div>
             <p className="text-slate-400 text-xs mt-1">
-              Test how Mercury's Growth Agent and Policy Engine respond to dynamic pricing requests sent by third-party AI buyers.
+              Spawns an independent external AI buyer that interacts strictly over HTTP APIs (`GET /api/ai-catalog`, `POST /api/buyer/negotiate`, `POST /api/razorpay/order`) without relying on the React UI.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-mono text-slate-400 mb-1">Target Product ID</label>
-              <input
-                type="text"
-                value={testProductId}
-                onChange={(e) => setTestProductId(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-purple-500"
-                placeholder="Product ID (e.g., cm45k001)"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-mono text-slate-400 mb-1">Target Budget Offer (₹)</label>
-              <input
-                type="number"
-                value={testBudget}
-                onChange={(e) => setTestBudget(Number(e.target.value))}
-                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-purple-500"
-                placeholder="Target Budget"
-              />
-            </div>
+          <div>
+            <label className="block text-xs font-mono text-slate-400 mb-1">External Buyer Prompt</label>
+            <input
+              type="text"
+              value={externalPrompt}
+              onChange={(e) => setExternalPrompt(e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-xs font-mono text-white focus:outline-none focus:border-emerald-500"
+            />
           </div>
 
           <button
-            onClick={handleRunAgenticTest}
-            disabled={isTesting}
-            className="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs font-mono rounded-lg flex items-center justify-center gap-2 transition-all"
+            onClick={handleRunExternalAgent}
+            disabled={isRunningAgent}
+            className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold text-xs font-mono rounded-lg flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all"
           >
-            {isTesting ? 'Evaluating Agentic Request...' : 'Send A2A Negotiation Request'}
-            <ArrowRight className="w-4 h-4" />
+            {isRunningAgent ? (
+              <>
+                <RefreshCw className="w-4 h-4 animate-spin" />
+                Executing HTTP API Requests...
+              </>
+            ) : (
+              <>
+                <Play className="w-4 h-4" />
+                ▶ Run Independent External AI Buyer Agent (HTTP Protocol)
+              </>
+            )}
           </button>
 
-          {testResponse && (
-            <div className="mt-4">
-              <span className="text-xs font-mono text-slate-400 uppercase tracking-wider block mb-2">A2A Negotiation Endpoint Response</span>
-              <pre className="bg-slate-950 p-4 rounded-lg text-purple-300 font-mono text-xs overflow-x-auto max-h-80 border border-slate-800">
-                {JSON.stringify(testResponse, null, 2)}
-              </pre>
+          {runnerResult && (
+            <div className="space-y-4 pt-4 border-t border-slate-800">
+              <div className="p-4 rounded-xl bg-slate-950 border border-emerald-800/80 flex items-center justify-between text-xs font-mono">
+                <div>
+                  <span className="text-slate-400">Selected Product: </span>
+                  <strong className="text-white">{runnerResult.summary?.selectedProduct}</strong>
+                </div>
+                <div>
+                  <span className="text-slate-400">Final Cart Total: </span>
+                  <strong className="text-emerald-400 font-bold">₹{runnerResult.summary?.finalCartTotal?.toLocaleString('en-IN')}</strong>
+                </div>
+                <div>
+                  <span className="text-slate-400">Payment Verified: </span>
+                  <strong className="text-cyan-400 font-bold">{runnerResult.summary?.orderStatus}</strong>
+                </div>
+              </div>
+
+              <div>
+                <span className="text-xs font-mono text-slate-400 uppercase tracking-wider block mb-2">HTTP API Call Sequence ({runnerResult.httpTrace?.length} Endpoints Executed)</span>
+                <div className="space-y-2 font-mono text-xs">
+                  {runnerResult.httpTrace?.map((step: any) => (
+                    <div key={step.step} className="p-3 rounded-lg bg-slate-950 border border-slate-800 flex flex-col gap-1">
+                      <div className="flex justify-between items-center">
+                        <span className="text-emerald-400 font-bold">STEP {step.step}: {step.name}</span>
+                        <span className="text-slate-400 text-[10px]">{step.latencyMs}ms</span>
+                      </div>
+                      <div className="text-[11px] text-slate-300">
+                        <span className="px-1.5 py-0.5 rounded bg-blue-950 text-blue-400 font-bold mr-2">{step.method}</span>
+                        <span className="text-slate-400">{step.url}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
         </div>
