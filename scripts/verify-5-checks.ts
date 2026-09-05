@@ -1,3 +1,4 @@
+import assert from 'assert';
 import { RazorpayService } from '../lib/razorpay/service';
 import { AIProvider } from '../lib/ai/provider';
 import { PolicyEngine } from '../lib/policy/engine';
@@ -41,9 +42,9 @@ async function runVerificationSuite() {
     const res = await AIProvider.processBuyerQuery(prompt);
     console.log(`Prompt #${i + 1}: "${prompt}"`);
     console.log(`   → Intent: ${res.intent.intentType} | Keywords: ${JSON.stringify(res.intent.keywords)} | Budget: ₹${res.intent.maxBudget || 'Any'}`);
-    console.log(`   → Recommended: ${res.recommendedProduct ? res.recommendedProduct.name : 'None'} (₹${res.recommendedProduct ? res.recommendedProduct.price : 0})`);
+    console.log(`   → Recommended: ${res.recommendedProduct ? res.recommendedProduct.name : 'None (Strict Category Contract)'} (₹${res.recommendedProduct ? res.recommendedProduct.price : 0})`);
     console.log(`   → Matched Catalog Items: ${res.matchedProducts.length} items`);
-    console.log(`   → Reasoning Snippet: ${res.replyText.substring(0, 80).replace(/\n/g, ' ')}...\n`);
+    console.log(`   → Reasoning Snippet: ${res.replyText.substring(0, 90).replace(/\n/g, ' ')}...\n`);
   }
 
   // CHECK 3: DIRECT SERVER-SIDE API POLICY ENFORCEMENT (BYPASSING UI)
@@ -59,21 +60,36 @@ async function runVerificationSuite() {
 
   // CHECK 4: MATHEMATICALLY DEFENSIBLE REVENUE ATTRIBUTION AUDIT
   console.log('--- CHECK 4: MATHEMATICALLY DEFENSIBLE REVENUE ATTRIBUTION AUDIT ---');
-  const totalDbOrders = await prisma.order.count({ where: { status: 'CAPTURED' } });
-  const dbAnalytics = await prisma.order.aggregate({
+  const capturedOrders = await prisma.order.findMany({
     where: { status: 'CAPTURED' },
-    _sum: { totalAmount: true, baseAmount: true, upsellAmount: true },
   });
 
-  const totalRev = dbAnalytics._sum.totalAmount || 0;
-  const baseRev = dbAnalytics._sum.baseAmount || 0;
-  const incrementalRev = dbAnalytics._sum.upsellAmount || 0;
+  let totalCapturedRevenue = 0;
+  let netBaseRevenue = 0;
+  let incrementalUpsellRevenue = 0;
 
-  console.log(`Attributable Metrics Computed directly from ${totalDbOrders} SQLite Order Records:`);
-  console.log(`   → Total Captured Revenue: ₹${Math.round(totalRev).toLocaleString('en-IN')}`);
-  console.log(`   → Base Product Revenue: ₹${Math.round(baseRev).toLocaleString('en-IN')}`);
-  console.log(`   → Incremental AI Upsell Revenue: ₹${Math.round(incrementalRev).toLocaleString('en-IN')}`);
-  console.log(`✓ Mathematical Proof: Base (₹${Math.round(baseRev).toLocaleString('en-IN')}) + Incremental (₹${Math.round(incrementalRev).toLocaleString('en-IN')}) = Total (₹${Math.round(totalRev).toLocaleString('en-IN')})\n`);
+  capturedOrders.forEach((o) => {
+    totalCapturedRevenue += o.totalAmount;
+    netBaseRevenue += (o.baseAmount - o.discountAmount);
+    incrementalUpsellRevenue += o.upsellAmount;
+  });
+
+  totalCapturedRevenue = Math.round(totalCapturedRevenue);
+  netBaseRevenue = Math.round(netBaseRevenue);
+  incrementalUpsellRevenue = Math.round(incrementalUpsellRevenue);
+
+  console.log(`Attributable Metrics Computed directly from ${capturedOrders.length} SQLite Order Records:`);
+  console.log(`   → Total Captured Revenue: ₹${totalCapturedRevenue.toLocaleString('en-IN')}`);
+  console.log(`   → Net Base Product Revenue: ₹${netBaseRevenue.toLocaleString('en-IN')}`);
+  console.log(`   → Incremental AI Upsell Revenue: ₹${incrementalUpsellRevenue.toLocaleString('en-IN')}`);
+
+  // STRICT MATHEMATICAL EQUALITY ASSERTION
+  assert.strictEqual(
+    netBaseRevenue + incrementalUpsellRevenue,
+    totalCapturedRevenue,
+    `Attribution Equation Violation: ${netBaseRevenue} + ${incrementalUpsellRevenue} !== ${totalCapturedRevenue}`
+  );
+  console.log(`✓ MATHEMATICAL PROOF PASSED: Net Base (₹${netBaseRevenue.toLocaleString('en-IN')}) + Incremental Upsell (₹${incrementalUpsellRevenue.toLocaleString('en-IN')}) === Total Captured Revenue (₹${totalCapturedRevenue.toLocaleString('en-IN')})\n`);
 
   // CHECK 5: GRACEFUL FAILURE DEMO (₹15,000 DISCOUNT ESCALATION & REJECTION)
   console.log('--- CHECK 5: GRACEFUL FAILURE & HUMAN-IN-THE-LOOP APPROVAL REJECTION DEMO ---');

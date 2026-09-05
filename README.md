@@ -1,155 +1,107 @@
-# Mercury — Policy-Governed Agentic Commerce Platform
+# Mercury — Policy-Governed Agentic Commerce Gateway
 
-> **"From AI intent to trusted transaction."**  
-> Built for the **Razorpay Buildathon 2026 — Track 01: AI Growth & Agentic Commerce**
-
----
-
-## 🌟 Overview
-
-**Mercury** is an end-to-end agentic commerce platform connecting AI buyers with merchants while empowering an autonomous **Merchant Growth Agent** to maximize Average Order Value (AOV) under explicit, merchant-configured policy boundaries and server-verified Razorpay payments.
-
-### Track 01 Goal Addressed
-> *"Grow the merchant's revenue, and make them sellable to AI buyers."*
-
-Mercury achieves this goal by deploying TWO cooperating AI agents:
-1. **AI Buyer Agent**: Understands natural language buyer intent, searches catalog tools, ranks products with technical justifications, and guides buyers to checkout.
-2. **Merchant Growth Agent**: Analyzes synthetic sales data, co-purchase affinity graphs, and customer segments to generate high-margin upsell/cross-sell recommendations (driving a **+16.6% AOV uplift**).
+> **Razorpay Buildathon 2026** — Track 01: *AI Growth & Agentic Commerce*  
+> Tagline: *"The infrastructure layer that makes a merchant sellable, understandable, and transactable to autonomous AI buyers."*
 
 ---
 
-## 🏗 System Architecture
+## 📌 Problem Statement
 
-```mermaid
-graph TD
-    A[AI Buyer Intent] --> B[Intent Parser & Catalog Tools]
-    B --> C[Product Recommendation]
-    C --> D[Merchant Growth Agent]
-    D --> E[Co-Purchase & Upsell Engine]
-    E --> F[Policy Engine]
-    F -->|Within Limits| G[Cart & Checkout]
-    F -->|Exceeds Limits| H[Approval Gate / Merchant Review]
-    H -->|Approved| G
-    H -->|Rejected| I[Blocked Action & Audit Event]
-    G --> J[Razorpay Test Mode Order Creation]
-    J --> K[Server-Side Payment Signature Verification]
-    K --> L[Order Confirmation & DB Update]
-    L --> M[Merchant Analytics & Audit Trail]
+Ordinary merchant websites are designed for human eyes, not autonomous AI buyers. When an AI agent attempts to buy products, it encounters un-structured HTML, missing stock schemas, unpredictable pricing, and lack of transaction governance.
+
+**Mercury** is the **AI-Native Merchant Commerce Gateway** that acts as the infrastructure layer between independent AI buyers and merchant stores.
+
 ```
-
-### Core Financial Governance Principle
-> **The LLM never directly executes financial operations.**  
-> Every request (discounts, high-value checkouts, promotional campaigns) is evaluated by the **Policy Engine** and gated by the human merchant when authority limits are breached.
-
----
-
-## 🛠 Tech Stack
-
-- **Frontend**: Next.js 14+ (App Router), React 18, TypeScript, Tailwind CSS, Recharts, Lucide Icons, Canvas Confetti.
-- **Backend**: Next.js API Routes (Server-Side Node.js runtime).
-- **Database & ORM**: SQLite via Prisma ORM (zero-config, portable local database seeded with 52 products, 500 customers, 1,050 orders).
-- **AI Layer**: Provider-agnostic `AIProvider` abstraction with fallback rule engine for 100% deterministic hackathon evaluation.
-- **Payments**: Razorpay Test Mode SDK with server-side HMAC-SHA256 signature verification (`crypto`) and mock adapter fallback.
-
----
-
-## 🚀 Key Features
-
-1. **AI Buyer Interface (`/buyer`)**:
-   - Natural language search ("I need a mechanical keyboard under ₹6,000").
-   - Product recommendation cards with technical justification and feature lists.
-   - Interactive Merchant Growth Agent upsell offers ("31% of keyboard buyers add a wrist rest").
-
-2. **Merchant Control Console (`/merchant`)**:
-   - **Overview Dashboard**: Real-time revenue tracking, AI-assisted revenue, AOV uplift graphs (Recharts).
-   - **Growth Agent Hub**: Autonomous sales recommendations based on synthetic order data analysis.
-   - **Catalog & AI Metadata**: Inspect 52 catalog items, categories, inventory, and affinity scores.
-   - **Orders & Payments**: Comprehensive transactions log with Razorpay status codes (Captured, Failed).
-   - **Agent Policies**: Form controls to adjust financial caps (`maxAutoDiscountAmount`, `maxAutoTransactionAmount`).
-   - **Approval Requests Gate**: Interactive human-in-the-loop modal to Approve or Reject out-of-bounds agent actions.
-   - **Audit Trail**: Searchable, filterable audit stream showing step-by-step agent decisions and policy evaluations.
-
-3. **1-Click Hackathon Demo Center (`/demo`)**:
-   - **Success Scenario**: Runs the complete 12-step purchase loop from AI intent -> Catalog search -> Growth upsell -> Cart -> Razorpay Test Mode checkout -> Server verification -> Audit log.
-   - **Graceful Failure Scenario**: Demonstrates an agent requesting an unauthorized ₹15,000 discount, which is **BLOCKED** by the Policy Engine, routed to the Approval Gate, rejected by the merchant, and recorded in the audit trail without any unauthorized money movement.
-
----
-
-## 🔑 Environment Setup & Installation
-
-### Prerequisites
-- Node.js 18+ or 20+
-- npm or yarn
-
-### Environment Variables (`.env`)
-Create a `.env` file in the root directory (optional for live Razorpay keys; mock mode fallback is enabled by default):
-
-```env
-# Database
-DATABASE_URL="file:./dev.db"
-
-# Razorpay Test Mode Credentials (Optional - Mock Adapter active if omitted)
-RAZORPAY_KEY_ID="rzp_test_YOUR_KEY_ID"
-RAZORPAY_KEY_SECRET="YOUR_KEY_SECRET"
-```
-
-### Installation Steps
-
-1. **Install Dependencies**:
-   ```bash
-   npm install
-   ```
-
-2. **Push Database Schema & Seed Synthetic Data**:
-   ```bash
-   npx prisma db push
-   npx tsx prisma/seed.ts
-   ```
-
-3. **Start Development Server**:
-   ```bash
-   npm run dev
-   ```
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-4. **Production Build**:
-   ```bash
-   npm run build
-   npm run start
-   ```
-
----
-
-## 📜 Audit Trail Schema
-
-Every agent action generates an immutable audit event:
-```json
-{
-  "timestamp": "2026-09-05T01:15:32.000Z",
-  "actor": "Merchant Growth Agent",
-  "agent": "GROWTH_AGENT",
-  "action": "UPSELL_RECOMMENDED",
-  "reason": "Recommended Ergonomic Wrist Rest (₹799) for Keychron K2 Keyboard based on 31% co-purchase rate.",
-  "amount": 799,
-  "policy": "Within merchant-approved limits",
-  "approvalStatus": "PASSED",
-  "result": "SUCCESS"
-}
+                 MERCHANT STORE
+                       │
+                       ▼
+             ┌──────────────────┐
+             │ MERCURY GATEWAY  │
+             │ Infrastructure   │
+             └─────────┬────────┘
+                       │
+        ┌──────────────┼──────────────┐
+        ▼              ▼              ▼
+  Agentic Catalog   Policy Engine   Razorpay Test
+  (JSON-LD / OpenAPI) (Air-Gap Limits)  (HMAC Verified)
+        │              │              │
+        └──────────────┼──────────────┘
+                       │
+                       ▼
+             INDEPENDENT AI BUYER
 ```
 
 ---
 
-## 🏆 Acceptance Criteria Checklist
+## ✨ Core Features & Technical Innovations
 
-- [x] Application runs successfully with zero build errors.
-- [x] AI Buyer Agent intent parser & catalog lookup works.
-- [x] Merchant Growth Agent upsell engine drives measurable revenue impact.
-- [x] Policy Engine enforces merchant discount and transaction limits.
-- [x] Approval Gate intercepts out-of-bounds agent actions.
-- [x] Razorpay Test Mode integration with server-side HMAC-SHA256 signature verification.
-- [x] Graceful failure scenario handling unauthorized financial requests.
-- [x] Dynamic analytics dashboard derived from actual SQLite database.
-- [x] 1-Click Hackathon Demo Center executing in under 3 minutes.
-- [x] Clean TypeScript architecture suitable for production and resume showcase.
+### 1. Agentic Catalog Infrastructure (`/api/ai-catalog` & `/api/ai-catalog/openapi.json`)
+Exposes machine-readable JSON-LD feeds and OpenAPI 3.0 specifications for third-party AI agents (ChatGPT, Claude, AutoGPT) to inspect catalog items, inventory, negotiable discount boundaries, and Razorpay endpoints.
+
+### 2. Autonomous Merchant Growth Agent (`/api/growth/insights`)
+Analyzes purchase affinity vectors across historical SQLite orders to deliver evidence-based dynamic co-purchase upsells (e.g. 31% co-purchase rate for Wrist Rest with Mechanical Keyboards), driving a **+16.6% AOV uplift**.
+
+### 3. Air-Gapped Financial Policy Engine (`lib/policy/engine.ts`)
+Separates LLM reasoning from financial execution. Financial caps (`maxAutoDiscountAmount: ₹1,000`, `maxAutoTransactionAmount: ₹10,000`) automatically authorize in-bounds transactions, while escalating out-of-bounds requests (e.g. ₹15,000 discount) to a human **Merchant Approval Gate**.
+
+### 4. Server-Verified Razorpay Test Gateway (`lib/razorpay/service.ts`)
+- Official Razorpay SDK integration for server-side order creation (`order_Pxxxx...`).
+- Cryptographic server-side HMAC-SHA256 signature verification (`razorpay_order_id`, `razorpay_payment_id`, `razorpay_signature`).
+- Built-in transparent fallback badge: `DEMO SIMULATION MODE (NO KEYS CONFIGURED)`.
+
+### 5. Hands-Free Voice AI Buyer Agent (`/buyer`)
+Integrated Web Speech API dictation (hands-free microphone intent input) and Text-to-Speech (TTS) vocalization of AI recommendations and evidence.
 
 ---
+
+## 🛠 Quickstart & Installation
+
+```bash
+# 1. Clone repository
+git clone https://github.com/harshith7002/Mercury.git
+cd Mercury
+
+# 2. Install dependencies
+npm install
+
+# 3. Setup environment variables (Optional - App falls back gracefully to Demo Simulation if keys omitted)
+# Create .env.local:
+# NEXT_PUBLIC_RAZORPAY_KEY_ID="rzp_test_..."
+# RAZORPAY_KEY_SECRET="..."
+
+# 4. Generate Prisma client & seed SQLite database
+npx prisma generate
+npx prisma db push
+npx tsx prisma/seed.ts
+
+# 5. Run development server
+npm run dev
+# Open http://localhost:3000
+```
+
+---
+
+## 🧪 Verification & Audit Suite
+
+Run automated functional audits to verify end-to-end platform integrity:
+
+```bash
+# Run 28-point Hostile Functional Audit Test Suite
+npx tsx scripts/test-suite.ts
+
+# Run 5-Point Mathematical Proof & Category Contract Verification Suite
+npx tsx scripts/verify-5-checks.ts
+```
+
+---
+
+## 🎯 Razorpay Buildathon & Interview Q&A
+
+### Q1: What makes Mercury an AI Agent platform rather than a simple chatbot?
+> *"The LLM never directly executes financial actions. Instead, the AI buyer acts as a planner using typed tools. Every proposed transaction passes through an air-gapped Policy Engine. If an action exceeds merchant boundaries (e.g. ₹15,000 discount request), the Policy Engine blocks it, generates an AI ROI rationale, and routes it to human merchant approval."*
+
+### Q2: How do you handle Razorpay payment security?
+> *"Order creation is strictly server-side (`RazorpayService.createOrder`). Payment signature verification is executed on the server using HMAC-SHA256 algorithm matching `razorpay_order_id`, `razorpay_payment_id`, and `razorpay_signature`. Only upon valid signature verification is the order state transitioned to CAPTURED in SQLite."*
+
+### Q3: How is revenue attribution computed?
+> *"We compute net base revenue and incremental upsell revenue from SQLite order items. The attribution equation `Net Base Revenue + Incremental AI Upsell Revenue === Total Captured Revenue` is mathematically verified across all captured orders."*

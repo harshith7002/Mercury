@@ -446,7 +446,7 @@ export default function BuyerPage() {
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-indigo-400" />
                   <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-200">
-                    Merchant Growth Opportunity
+                    Decision Evidence (Merchant Growth)
                   </h3>
                 </div>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-700 font-bold">

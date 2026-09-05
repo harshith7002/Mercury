@@ -9,24 +9,29 @@ export async function GET() {
       orderBy: { createdAt: 'asc' }, // Ensure chronological sorting from DB
     });
 
-    let totalRevenue = 0;
-    let aiInfluencedRevenue = 0;
+    let totalCapturedRevenue = 0;
+    let netBaseRevenue = 0;
     let incrementalUpsellRevenue = 0;
+    let totalDiscountAmount = 0;
+
+    let aiInfluencedRevenue = 0;
     let aiOrderCount = 0;
     let upsellOrderCount = 0;
-
-    let aiRevenueSum = 0;
-    let nonAiRevenueSum = 0;
     let nonAiOrderCount = 0;
+    let nonAiRevenueSum = 0;
 
     const productSalesMap: Record<string, { name: string; count: number; revenue: number }> = {};
     const trendMap: Record<string, { timestamp: number; date: string; Total: number; AIInfluenced: number; Incremental: number }> = {};
 
     capturedOrders.forEach((o) => {
-      totalRevenue += o.totalAmount;
+      // Attributable Equation: totalAmount === (baseAmount - discountAmount) + upsellAmount
+      totalCapturedRevenue += o.totalAmount;
+      const netOrderBase = o.baseAmount - o.discountAmount;
+      netBaseRevenue += netOrderBase;
+      incrementalUpsellRevenue += o.upsellAmount;
+      totalDiscountAmount += o.discountAmount;
 
       const orderDate = new Date(o.createdAt);
-      // Create a sortable timestamp key (YYYY-MM-DD)
       const dateIsoKey = orderDate.toISOString().split('T')[0];
       const dateDisplay = orderDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
@@ -44,12 +49,10 @@ export async function GET() {
 
       if (o.isAiAssisted) {
         aiInfluencedRevenue += o.totalAmount;
-        aiRevenueSum += o.totalAmount;
         aiOrderCount++;
         trendMap[dateIsoKey].AIInfluenced += Math.round(o.totalAmount);
 
         if (o.upsellAmount > 0) {
-          incrementalUpsellRevenue += o.upsellAmount;
           upsellOrderCount++;
           trendMap[dateIsoKey].Incremental += Math.round(o.upsellAmount);
         }
@@ -67,9 +70,12 @@ export async function GET() {
       });
     });
 
+    // Verification Check: netBaseRevenue + incrementalUpsellRevenue MUST equal totalCapturedRevenue
+    const mathCheckPassed = Math.abs((netBaseRevenue + incrementalUpsellRevenue) - totalCapturedRevenue) < 0.01;
+
     const totalOrders = capturedOrders.length;
-    const overallAov = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-    const aiAov = aiOrderCount > 0 ? aiRevenueSum / aiOrderCount : 0;
+    const overallAov = totalOrders > 0 ? totalCapturedRevenue / totalOrders : 0;
+    const aiAov = aiOrderCount > 0 ? aiInfluencedRevenue / aiOrderCount : 0;
     const nonAiAov = nonAiOrderCount > 0 ? nonAiRevenueSum / nonAiOrderCount : 3240;
 
     const aovUpliftPercent = nonAiAov > 0 ? ((aiAov - nonAiAov) / nonAiAov) * 100 : 16.6;
@@ -87,11 +93,14 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       analytics: {
-        totalRevenue: Math.round(totalRevenue),
-        aiAssistedRevenue: Math.round(aiInfluencedRevenue), // backward compat
+        totalRevenue: Math.round(totalCapturedRevenue),
+        netBaseRevenue: Math.round(netBaseRevenue),
+        aiAssistedRevenue: Math.round(aiInfluencedRevenue),
         aiInfluencedRevenue: Math.round(aiInfluencedRevenue),
-        incrementalRevenue: Math.round(incrementalUpsellRevenue), // backward compat
+        incrementalRevenue: Math.round(incrementalUpsellRevenue),
         incrementalUpsellRevenue: Math.round(incrementalUpsellRevenue),
+        totalDiscountAmount: Math.round(totalDiscountAmount),
+        mathCheckPassed,
         totalOrders,
         overallAov: Math.round(overallAov),
         aiAov: Math.round(aiAov),
