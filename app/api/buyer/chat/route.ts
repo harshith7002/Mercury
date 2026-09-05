@@ -13,10 +13,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: 'Prompt is required' }, { status: 400 });
     }
 
+    const runId = `run_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const steps: AgentStep[] = [];
+
     const addStep = (title: string, status: AgentStep['status'], detail: string, toolName?: string) => {
       steps.push({
-        id: `step_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        id: `step_${runId}_${steps.length + 1}`,
         title,
         status,
         detail,
@@ -33,12 +35,12 @@ export async function POST(req: Request) {
       actor: 'AI Buyer',
       agent: 'AI Buyer Agent',
       action: 'INTENT_PARSED',
-      reason: `Parsed intent: ${processed.intent.intentType}, Budget: ₹${processed.intent.maxBudget || 'Unspecified'}, Category: ${processed.intent.category || 'Any'}`,
+      reason: `[Run ${runId}] Parsed intent: ${processed.intent.intentType}, Budget: ₹${processed.intent.maxBudget || 'Unspecified'}, Category: ${processed.intent.category || 'Any'}`,
       approvalStatus: 'PASSED',
       result: 'SUCCESS',
     });
 
-    addStep('Catalog Searched', 'tool_call', `Queried catalog tools. Found ${processed.matchedProducts.length} matching products.`, 'CatalogTools.searchCatalog');
+    addStep('Catalog Searched', 'tool_call', `Queried catalog tools for "${processed.intent.keywords[0] || 'all'}". Found ${processed.matchedProducts.length} matching products.`, 'CatalogTools.searchCatalog');
 
     let upsellRecommendation = null;
     let policyCheck = null;
@@ -50,7 +52,7 @@ export async function POST(req: Request) {
         actor: 'AI Buyer',
         agent: 'AI Buyer Agent',
         action: 'PRODUCT_RECOMMENDED',
-        reason: `Recommended ${processed.recommendedProduct.name} based on user constraints.`,
+        reason: `[Run ${runId}] Recommended ${processed.recommendedProduct.name} based on user constraints.`,
         amount: processed.recommendedProduct.price,
         approvalStatus: 'PASSED',
         result: 'SUCCESS',
@@ -81,7 +83,7 @@ export async function POST(req: Request) {
             actor: 'Merchant Growth Agent',
             agent: 'Merchant Growth Agent',
             action: 'UPSELL_RECOMMENDED',
-            reason: `Recommended ${upsellRecommendation.product.name} for ${processed.recommendedProduct.name}. Co-purchase rate: ${Math.round(upsellRecommendation.confidenceScore * 100)}%`,
+            reason: `[Run ${runId}] Recommended ${upsellRecommendation.product.name} for ${processed.recommendedProduct.name}. Co-purchase rate: ${Math.round(upsellRecommendation.confidenceScore * 100)}%`,
             amount: upsellRecommendation.discountedPrice,
             policy: 'Within merchant-approved limits',
             approvalStatus: 'PASSED',
@@ -93,6 +95,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
+      runId,
       replyText: processed.replyText,
       recommendedProduct: processed.recommendedProduct,
       matchedProducts: processed.matchedProducts,

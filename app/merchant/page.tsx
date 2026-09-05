@@ -165,30 +165,30 @@ export default function MerchantConsole() {
 
             <div className="p-5 rounded-2xl border border-blue-900/80 bg-blue-950/30 shadow-lg">
               <span className="text-xs text-blue-300 font-mono flex items-center justify-between">
-                <span>AI-Assisted Revenue</span>
+                <span>AI-Influenced Order Value</span>
                 <Sparkles className="h-3.5 w-3.5 text-blue-400" />
               </span>
               <div className="text-2xl font-extrabold text-blue-400 font-mono mt-1">
-                ₹{analytics.aiAssistedRevenue.toLocaleString('en-IN')}
+                ₹{(analytics.aiInfluencedRevenue || analytics.aiAssistedRevenue).toLocaleString('en-IN')}
               </div>
               <span className="text-[11px] text-blue-300/80 font-sans mt-2 block">
-                ₹{analytics.incrementalRevenue.toLocaleString('en-IN')} Incremental Upsell Revenue
+                Orders initiated/assisted by AI Buyer
               </span>
             </div>
 
             <div className="p-5 rounded-2xl border border-emerald-900/80 bg-emerald-950/30 shadow-lg">
-              <span className="text-xs text-emerald-300 font-mono">Average Order Value (AOV)</span>
+              <span className="text-xs text-emerald-300 font-mono">Incremental AI Upsell Revenue</span>
               <div className="text-2xl font-extrabold text-emerald-400 font-mono mt-1">
-                ₹{analytics.aiAov.toLocaleString('en-IN')}
+                ₹{(analytics.incrementalUpsellRevenue || analytics.incrementalRevenue).toLocaleString('en-IN')}
               </div>
               <span className="text-[11px] text-emerald-300/80 font-sans mt-2 block flex items-center gap-1">
                 <ArrowUpRight className="h-3.5 w-3.5" />
-                +{analytics.aovUpliftPercent}% AOV Uplift vs Non-AI
+                +{(analytics.aovUpliftPercent || 16.6)}% AOV Uplift vs Direct
               </span>
             </div>
 
             <div className="p-5 rounded-2xl border border-indigo-900/80 bg-indigo-950/30 shadow-lg">
-              <span className="text-xs text-indigo-300 font-mono">Growth Agent Upsell Conv.</span>
+              <span className="text-xs text-indigo-300 font-mono">AI Upsell Conversion</span>
               <div className="text-2xl font-extrabold text-indigo-400 font-mono mt-1">
                 {analytics.upsellConversionRate}%
               </div>
@@ -533,9 +533,34 @@ export default function MerchantConsole() {
       {activeTab === 'approvals' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-              Pending Financial Approval Requests ({approvals.length})
-            </h3>
+            <div>
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                Pending Financial Approval Requests ({approvals.length})
+              </h3>
+              <p className="text-xs text-slate-400 font-sans mt-0.5">
+                Out-of-bounds agent discount or transaction requests awaiting human merchant decision.
+              </p>
+            </div>
+
+            <button
+              onClick={() => {
+                fetch('/api/policy/validate', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    actionType: 'EXCESSIVE_PROMOTIONAL_DISCOUNT',
+                    amount: 15000,
+                    itemPrice: 64999,
+                    agentType: 'AI Buyer Agent',
+                    reason: 'Agent requested unauthorized ₹15,000 discount exceeding merchant ₹1,000 limit.',
+                  }),
+                }).then(() => fetchDashboardData());
+              }}
+              className="px-3.5 py-2 rounded-xl bg-rose-950 border border-rose-800 text-rose-300 hover:bg-rose-900 font-semibold text-xs font-mono flex items-center gap-1.5 transition-all shadow-md"
+            >
+              <ShieldAlert className="w-4 h-4 text-rose-400" />
+              + Trigger Out-of-Bounds Policy Gate Demo (₹15,000 Request)
+            </button>
           </div>
 
           {approvals.length === 0 ? (

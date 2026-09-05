@@ -123,7 +123,7 @@ export default function LandingPage() {
             <div className="flex items-center gap-2">
               <Zap className="h-4 w-4 text-blue-400" />
               <h2 className="text-xs font-bold uppercase tracking-wider text-slate-300">
-                Interactive 3D Agentic Telemetry Graph
+                Truthful Agent Execution Trace
               </h2>
             </div>
             <span className="text-xs font-mono text-slate-400">Click any node to inspect server telemetry</span>

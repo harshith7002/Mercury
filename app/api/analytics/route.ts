@@ -6,11 +6,12 @@ export async function GET() {
     const capturedOrders = await prisma.order.findMany({
       where: { status: 'CAPTURED' },
       include: { items: true },
+      orderBy: { createdAt: 'asc' }, // Ensure chronological sorting from DB
     });
 
     let totalRevenue = 0;
-    let aiAssistedRevenue = 0;
-    let incrementalRevenue = 0;
+    let aiInfluencedRevenue = 0;
+    let incrementalUpsellRevenue = 0;
     let aiOrderCount = 0;
     let upsellOrderCount = 0;
 
@@ -19,18 +20,38 @@ export async function GET() {
     let nonAiOrderCount = 0;
 
     const productSalesMap: Record<string, { name: string; count: number; revenue: number }> = {};
+    const trendMap: Record<string, { timestamp: number; date: string; Total: number; AIInfluenced: number; Incremental: number }> = {};
 
     capturedOrders.forEach((o) => {
       totalRevenue += o.totalAmount;
 
+      const orderDate = new Date(o.createdAt);
+      // Create a sortable timestamp key (YYYY-MM-DD)
+      const dateIsoKey = orderDate.toISOString().split('T')[0];
+      const dateDisplay = orderDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+      if (!trendMap[dateIsoKey]) {
+        trendMap[dateIsoKey] = {
+          timestamp: orderDate.getTime(),
+          date: dateDisplay,
+          Total: 0,
+          AIInfluenced: 0,
+          Incremental: 0,
+        };
+      }
+
+      trendMap[dateIsoKey].Total += Math.round(o.totalAmount);
+
       if (o.isAiAssisted) {
-        aiAssistedRevenue += o.totalAmount;
+        aiInfluencedRevenue += o.totalAmount;
         aiRevenueSum += o.totalAmount;
         aiOrderCount++;
+        trendMap[dateIsoKey].AIInfluenced += Math.round(o.totalAmount);
 
         if (o.upsellAmount > 0) {
-          incrementalRevenue += o.upsellAmount;
+          incrementalUpsellRevenue += o.upsellAmount;
           upsellOrderCount++;
+          trendMap[dateIsoKey].Incremental += Math.round(o.upsellAmount);
         }
       } else {
         nonAiRevenueSum += o.totalAmount;
@@ -58,28 +79,19 @@ export async function GET() {
       .sort((a, b) => b.revenue - a.revenue)
       .slice(0, 5);
 
-    // Group revenue by date for Recharts chart (last 7 days / weeks)
-    const trendMap: Record<string, { date: string; Total: number; AIAssisted: number }> = {};
-
-    capturedOrders.forEach((o) => {
-      const dateKey = new Date(o.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      if (!trendMap[dateKey]) {
-        trendMap[dateKey] = { date: dateKey, Total: 0, AIAssisted: 0 };
-      }
-      trendMap[dateKey].Total += Math.round(o.totalAmount);
-      if (o.isAiAssisted) {
-        trendMap[dateKey].AIAssisted += Math.round(o.totalAmount);
-      }
-    });
-
-    const revenueTrend = Object.values(trendMap).slice(-10);
+    // SORT TREND MAP CHRONOLOGICALLY BY TIMESTAMP
+    const revenueTrend = Object.values(trendMap)
+      .sort((a, b) => a.timestamp - b.timestamp)
+      .slice(-12);
 
     return NextResponse.json({
       success: true,
       analytics: {
         totalRevenue: Math.round(totalRevenue),
-        aiAssistedRevenue: Math.round(aiAssistedRevenue),
-        incrementalRevenue: Math.round(incrementalRevenue),
+        aiAssistedRevenue: Math.round(aiInfluencedRevenue), // backward compat
+        aiInfluencedRevenue: Math.round(aiInfluencedRevenue),
+        incrementalRevenue: Math.round(incrementalUpsellRevenue), // backward compat
+        incrementalUpsellRevenue: Math.round(incrementalUpsellRevenue),
         totalOrders,
         overallAov: Math.round(overallAov),
         aiAov: Math.round(aiAov),

@@ -85,12 +85,14 @@ export function RazorpayModal({
       <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl overflow-hidden">
         
         {/* Test Mode Banner */}
-        <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2.5 flex items-center justify-between text-white font-mono text-xs">
+        <div className={`px-4 py-2.5 flex items-center justify-between text-white font-mono text-xs ${
+          isMock ? 'bg-gradient-to-r from-amber-600 to-orange-600' : 'bg-gradient-to-r from-emerald-600 to-teal-600'
+        }`}>
           <div className="flex items-center gap-2 font-bold tracking-wide">
             <ShieldCheck className="h-4 w-4" />
-            <span>RAZORPAY TEST MODE {isMock ? '(MOCK ADAPTER)' : ''}</span>
+            <span>{isMock ? 'DEMO SIMULATION (NO RAZORPAY KEYS)' : 'REAL RAZORPAY TEST MODE (RAZORPAY API)'}</span>
           </div>
-          <button onClick={onClose} className="text-emerald-100 hover:text-white">
+          <button onClick={onClose} className="text-white hover:opacity-80">
             <X className="h-4 w-4" />
           </button>
         </div>
