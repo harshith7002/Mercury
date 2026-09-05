@@ -17,13 +17,19 @@ import {
   Lock,
   ArrowUpRight,
   Filter,
+  Bot,
+  BarChart3,
 } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { ApprovalGateModal } from '@/components/ApprovalGateModal';
 import { PolicyRules, AuditEventRecord, ApprovalRequestRecord } from '@/types';
+import { SimulatorTab } from '@/components/merchant/SimulatorTab';
+import { AgentMarketplaceTab } from '@/components/merchant/AgentMarketplaceTab';
 
 export default function MerchantConsole() {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'growth' | 'catalog' | 'orders' | 'policies' | 'approvals' | 'audit'>('dashboard');
+  const [activeTab, setActiveTab] = useState<
+    'dashboard' | 'growth' | 'simulator' | 'agenticApi' | 'catalog' | 'orders' | 'policies' | 'approvals' | 'audit'
+  >('dashboard');
 
   // State Data
   const [analytics, setAnalytics] = useState<any>(null);
@@ -93,6 +99,8 @@ export default function MerchantConsole() {
   const tabs = [
     { id: 'dashboard', label: 'Overview', icon: LayoutDashboard },
     { id: 'growth', label: 'Growth Agent', icon: TrendingUp, badge: 'AI Engine' },
+    { id: 'simulator', label: 'Revenue Simulator', icon: BarChart3, badge: 'What-If' },
+    { id: 'agenticApi', label: 'AI Buyer API Feed', icon: Bot, badge: 'Track 01' },
     { id: 'catalog', label: 'Catalog & AI Metadata', icon: Package },
     { id: 'orders', label: 'Orders & Payments', icon: CreditCard },
     { id: 'policies', label: 'Agent Policies', icon: Sliders },
@@ -102,7 +110,6 @@ export default function MerchantConsole() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 space-y-8">
-      
       {/* Console Top Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-6 rounded-2xl border border-slate-800 bg-slate-900 shadow-xl">
         <div>
@@ -146,7 +153,6 @@ export default function MerchantConsole() {
       {/* TAB 1: OVERVIEW DASHBOARD */}
       {activeTab === 'dashboard' && analytics && (
         <div className="space-y-8">
-          
           {/* Key Metrics Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="p-5 rounded-2xl border border-slate-800 bg-slate-900/80 shadow-lg">
@@ -240,7 +246,6 @@ export default function MerchantConsole() {
               ))}
             </div>
           </div>
-
         </div>
       )}
 
@@ -324,7 +329,15 @@ export default function MerchantConsole() {
         </div>
       )}
 
-      {/* TAB 3: CATALOG & AI METADATA */}
+      {/* TAB 3: SIMULATOR */}
+      {activeTab === 'simulator' && policy && (
+        <SimulatorTab currentPolicy={policy} onPolicyUpdated={fetchDashboardData} />
+      )}
+
+      {/* TAB 4: AGENTIC API FEED */}
+      {activeTab === 'agenticApi' && <AgentMarketplaceTab />}
+
+      {/* TAB 5: CATALOG & AI METADATA */}
       {activeTab === 'catalog' && (
         <div className="space-y-4">
           <div className="flex justify-between items-center">
@@ -382,7 +395,7 @@ export default function MerchantConsole() {
         </div>
       )}
 
-      {/* TAB 4: ORDERS & PAYMENTS */}
+      {/* TAB 6: ORDERS & PAYMENTS */}
       {activeTab === 'orders' && (
         <div className="space-y-4">
           <h3 className="text-sm font-bold text-white uppercase tracking-wider">
@@ -443,7 +456,7 @@ export default function MerchantConsole() {
         </div>
       )}
 
-      {/* TAB 5: AGENT POLICIES */}
+      {/* TAB 7: AGENT POLICIES */}
       {activeTab === 'policies' && policy && (
         <div className="max-w-3xl space-y-6">
           <div className="p-6 rounded-2xl border border-slate-800 bg-slate-900 shadow-xl space-y-6">
@@ -516,7 +529,7 @@ export default function MerchantConsole() {
         </div>
       )}
 
-      {/* TAB 6: APPROVAL REQUESTS GATE */}
+      {/* TAB 8: APPROVAL REQUESTS GATE */}
       {activeTab === 'approvals' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -566,7 +579,7 @@ export default function MerchantConsole() {
         </div>
       )}
 
-      {/* TAB 7: AUDIT TRAIL */}
+      {/* TAB 9: AUDIT TRAIL */}
       {activeTab === 'audit' && (
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -652,7 +665,6 @@ export default function MerchantConsole() {
         onClose={() => setSelectedApproval(null)}
         onDecided={fetchDashboardData}
       />
-
     </div>
   );
 }

@@ -1,7 +1,23 @@
 'use client';
 
 import { useState } from 'react';
-import { Send, ShoppingBag, Sparkles, Check, ArrowRight, ShieldCheck, RefreshCw, Cpu, Layers, HelpCircle, Star, Image as ImageIcon } from 'lucide-react';
+import {
+  Send,
+  ShoppingBag,
+  Sparkles,
+  Check,
+  ArrowRight,
+  ShieldCheck,
+  RefreshCw,
+  Cpu,
+  Layers,
+  HelpCircle,
+  Star,
+  Mic,
+  MicOff,
+  Volume2,
+  VolumeX,
+} from 'lucide-react';
 import { ProductItem, CartItem, CartState, AgentStep, UpsellRecommendation } from '@/types';
 import { AgentActivityPanel } from '@/components/AgentActivityPanel';
 import { CartDrawer } from '@/components/CartDrawer';
@@ -10,6 +26,9 @@ import { RazorpayModal } from '@/components/RazorpayModal';
 export default function BuyerPage() {
   const [promptInput, setPromptInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isTtsEnabled, setIsTtsEnabled] = useState(true);
+
   const [messages, setMessages] = useState<
     Array<{
       id: string;
@@ -50,6 +69,46 @@ export default function BuyerPage() {
     "What's the cheapest option?",
     'Show me ultrawide monitors under ₹35,000.',
   ];
+
+  const speakText = (text: string) => {
+    if (!isTtsEnabled || typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    try {
+      window.speechSynthesis.cancel();
+      const cleanText = text.replace(/[*#_`]/g, '').substring(0, 200);
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.rate = 1.05;
+      window.speechSynthesis.speak(utterance);
+    } catch (e) {
+      console.warn('Speech synthesis error:', e);
+    }
+  };
+
+  const toggleListening = () => {
+    if (typeof window === 'undefined' || !('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      alert('Speech recognition is not supported in this browser.');
+      return;
+    }
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+
+    if (isListening) {
+      recognition.stop();
+      setIsListening(false);
+    } else {
+      setIsListening(true);
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setPromptInput(transcript);
+        setIsListening(false);
+        handleSendPrompt(transcript);
+      };
+      recognition.onerror = () => setIsListening(false);
+      recognition.onend = () => setIsListening(false);
+      recognition.start();
+    }
+  };
 
   const updateCartTotals = (items: CartItem[]) => {
     let subtotal = 0;
@@ -126,6 +185,8 @@ export default function BuyerPage() {
             upsell: data.upsellRecommendation,
           },
         ]);
+
+        speakText(data.replyText);
       } else {
         setMessages((prev) => [
           ...prev,
@@ -206,7 +267,6 @@ export default function BuyerPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 space-y-8">
-      
       {/* Top Banner */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-6 rounded-2xl border border-slate-800 bg-slate-900 shadow-xl">
         <div>
@@ -215,30 +275,44 @@ export default function BuyerPage() {
             <h1 className="text-xl font-extrabold text-white tracking-tight">AI Buyer Agent Hub</h1>
           </div>
           <p className="text-xs text-slate-400 font-sans">
-            Conversational agent with catalog discovery, technical ranking, and Merchant Growth upsell recommendations.
+            Conversational agent with hands-free voice intent, technical ranking, and Merchant Growth upsell recommendations.
           </p>
         </div>
 
-        <button
-          onClick={() => setIsCartOpen(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs border border-slate-700 transition-all relative shadow-md"
-        >
-          <ShoppingBag className="h-4 w-4 text-blue-400" />
-          <span>Cart ({cart.items.length})</span>
-          {cart.total > 0 && (
-            <span className="font-mono font-bold text-emerald-400 ml-1">
-              ₹{cart.total.toLocaleString('en-IN')}
-            </span>
-          )}
-        </button>
+        <div className="flex items-center gap-3">
+          {/* TTS Audio Toggle */}
+          <button
+            onClick={() => setIsTtsEnabled(!isTtsEnabled)}
+            className={`p-2.5 rounded-xl border text-xs transition-all ${
+              isTtsEnabled
+                ? 'bg-blue-950/60 border-blue-600/40 text-blue-400'
+                : 'bg-slate-950 border-slate-800 text-slate-500'
+            }`}
+            title={isTtsEnabled ? 'Voice Audio Output Enabled' : 'Voice Audio Output Muted'}
+          >
+            {isTtsEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+          </button>
+
+          {/* Cart Button */}
+          <button
+            onClick={() => setIsCartOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs border border-slate-700 transition-all relative shadow-md"
+          >
+            <ShoppingBag className="h-4 w-4 text-blue-400" />
+            <span>Cart ({cart.items.length})</span>
+            {cart.total > 0 && (
+              <span className="font-mono font-bold text-emerald-400 ml-1">
+                ₹{cart.total.toLocaleString('en-IN')}
+              </span>
+            )}
+          </button>
+        </div>
       </div>
 
-      {/* Main Grid Layout: Left Chat Interface, Right Timeline & Upsell */}
+      {/* Main Grid Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
         {/* Left Column: Chat Area */}
         <div className="lg:col-span-7 space-y-4">
-          
           {/* Sample Query Chips */}
           <div className="space-y-2">
             <span className="text-xs font-mono text-slate-400 flex items-center gap-1">
@@ -262,10 +336,7 @@ export default function BuyerPage() {
           {/* Conversation Feed */}
           <div className="h-[520px] overflow-y-auto rounded-2xl border border-slate-800 bg-slate-950 p-4 space-y-4 shadow-inner">
             {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}
-              >
+              <div key={msg.id} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
                 <div
                   className={`max-w-[88%] rounded-2xl p-4 text-xs leading-relaxed ${
                     msg.sender === 'user'
@@ -275,14 +346,15 @@ export default function BuyerPage() {
                 >
                   <div className="whitespace-pre-wrap font-sans">{msg.text}</div>
 
-                  {/* Recommended Product Card inside message with Photo */}
+                  {/* Recommended Product Card */}
                   {msg.product && (
                     <div className="mt-4 p-4 rounded-xl border border-blue-800/80 bg-slate-950 text-left space-y-3.5 shadow-xl">
-                      
-                      {/* Product Image Header */}
                       <div className="relative h-44 w-full rounded-lg overflow-hidden border border-slate-800 group">
                         <img
-                          src={msg.product.imageUrl || 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&auto=format&fit=crop&q=80'}
+                          src={
+                            msg.product.imageUrl ||
+                            'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&auto=format&fit=crop&q=80'
+                          }
                           alt={msg.product.name}
                           className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
@@ -326,7 +398,7 @@ export default function BuyerPage() {
             ))}
           </div>
 
-          {/* Prompt Input Form */}
+          {/* Prompt Input Form with Voice Button */}
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -334,14 +406,28 @@ export default function BuyerPage() {
             }}
             className="flex gap-2"
           >
+            <button
+              type="button"
+              onClick={toggleListening}
+              className={`p-3 rounded-xl border flex items-center justify-center transition-all ${
+                isListening
+                  ? 'bg-rose-600 text-white border-rose-500 animate-pulse shadow-lg shadow-rose-600/30'
+                  : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+              }`}
+              title={isListening ? 'Stop Listening' : 'Voice Input (Hands-free Dictation)'}
+            >
+              {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+            </button>
+
             <input
               type="text"
               value={promptInput}
               onChange={(e) => setPromptInput(e.target.value)}
-              placeholder="Ask AI Buyer: e.g. I need a mechanical keyboard under ₹6,000..."
+              placeholder={isListening ? 'Listening for voice intent...' : 'Ask AI Buyer: e.g. I need a mechanical keyboard under ₹6,000...'}
               disabled={isProcessing}
               className="flex-1 rounded-xl border border-slate-800 bg-slate-900 px-4 py-3 text-xs text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none transition-all font-sans"
             />
+
             <button
               type="submit"
               disabled={isProcessing || !promptInput.trim()}
@@ -350,13 +436,10 @@ export default function BuyerPage() {
               {isProcessing ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             </button>
           </form>
-
         </div>
 
-        {/* Right Column: Live Agent Timeline & Growth Agent Upsell */}
+        {/* Right Column */}
         <div className="lg:col-span-5 space-y-6">
-          
-          {/* Growth Agent Recommendation Card with Product Image */}
           {currentUpsell && (
             <div className="rounded-2xl border border-indigo-900/90 bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 p-5 shadow-2xl space-y-3.5">
               <div className="flex items-center justify-between">
@@ -371,14 +454,14 @@ export default function BuyerPage() {
                 </span>
               </div>
 
-              <p className="text-xs text-slate-300 font-sans leading-relaxed">
-                "{currentUpsell.reason}"
-              </p>
+              <p className="text-xs text-slate-300 font-sans leading-relaxed">"{currentUpsell.reason}"</p>
 
-              {/* Upsell Product Visual Card */}
               <div className="p-3.5 rounded-xl bg-slate-950 border border-indigo-800/80 flex items-center gap-3">
                 <img
-                  src={currentUpsell.product.imageUrl || 'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=600&auto=format&fit=crop&q=80'}
+                  src={
+                    currentUpsell.product.imageUrl ||
+                    'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=600&auto=format&fit=crop&q=80'
+                  }
                   alt={currentUpsell.product.name}
                   className="h-14 w-14 rounded-lg object-cover border border-slate-800 shrink-0"
                 />
@@ -400,14 +483,10 @@ export default function BuyerPage() {
             </div>
           )}
 
-          {/* Live Agent Timeline Component */}
           <AgentActivityPanel steps={steps} isThinking={isProcessing} />
-
         </div>
-
       </div>
 
-      {/* Slide-over Cart Drawer */}
       <CartDrawer
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
@@ -419,7 +498,6 @@ export default function BuyerPage() {
         isCheckingOut={isInitiatingCheckout}
       />
 
-      {/* Razorpay Test Mode Checkout Modal */}
       {activeRazorpayOrderId && activeDbOrderId && (
         <RazorpayModal
           isOpen={isRazorpayOpen}
@@ -435,7 +513,6 @@ export default function BuyerPage() {
           }}
         />
       )}
-
     </div>
   );
 }
