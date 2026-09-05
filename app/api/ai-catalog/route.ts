@@ -1,15 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { PolicyEngine } from '@/lib/policy/engine';
+import { LiveMarketService } from '@/lib/catalog/live-market';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   try {
-    const products = await prisma.product.findMany({
+    const apiKey = req.nextUrl.searchParams.get('apiKey') || undefined;
+    const liveItems = await LiveMarketService.fetchLiveCatalog(apiKey);
+
+    const dbProducts = await prisma.product.findMany({
       take: 50,
       orderBy: { price: 'desc' },
     });
+
+    // Merge live market API items if API key provided, otherwise use local merchant DB
+    const products = liveItems.length > 0
+      ? liveItems.map((item) => ({
+          id: item.id,
+          name: item.name,
+          description: item.description,
+          category: item.category,
+          price: item.price,
+          inventory: item.inventory,
+          imageUrl: item.imageUrl,
+        }))
+      : dbProducts;
 
     const activePolicy = await PolicyEngine.getActivePolicy();
 
