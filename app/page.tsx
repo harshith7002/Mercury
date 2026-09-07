@@ -26,7 +26,8 @@ import {
   ArrowUpRight,
   Cpu,
   Globe,
-  Sliders
+  Sliders,
+  HelpCircle
 } from 'lucide-react';
 import { Mercury3DCanvas } from '@/components/3d/Mercury3DCanvas';
 import { TiltCard } from '@/components/3d/TiltCard';
